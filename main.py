@@ -14,13 +14,13 @@ class App:
         self.window.iconname("ALFA-ETA")
         self.window.config(background="white")
         #app icon
-        photo = PhotoImage(file="logo.png")
+        photo = PhotoImage(file="Images/logo.png")
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
         self.battery = Battery(self) 
-        self.driver=Driver(self)       
+        #self.driver=Driver(self)       
 
-class Driver:
+''' class Driver:
     def __init__(self, obj):
         self.driverCanvas = Canvas(
             obj.window, height=200, width=400, background="white", highlightthickness=0)
@@ -30,13 +30,14 @@ class Driver:
         self.driverCanvas.pack()
         self.driverCanvas.place(relx=1, rely=0.5, anchor=CENTER)
         self.driverTxt = self.driverCanvas.create_text(
-            100, 40, fill="black", text="DRIVER", font=('Helvetica 20 bold'))
+            100, 40, fill="black", text="DRIVER", font=('Helvetica 20 bold')) '''
+            
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
         self.speedCanvas = Canvas(
             obj.window, height=100, width=200, background="white", highlightthickness=0)
-        self.speedometer = PhotoImage(file='speedometer.png')
+        self.speedometer = PhotoImage(file='Images/speedometer.png')
         self.speedCanvas.create_image(
             103, 52, image=self.speedometer, anchor=CENTER)
         coord = 2, 200, 200, 2
@@ -54,8 +55,8 @@ class Battery:
         #Battery Canvas
         self.batteryCanvas = Canvas(obj.window, height=125, width=74,
                                     background="white", highlightthickness=1)
-        self.normalbattery = PhotoImage(file='normalbattery.png')
-        self.chargingbattery = PhotoImage(file='chargbatery.png')
+        self.normalbattery = PhotoImage(file='Images/normalbattery.png')
+        self.chargingbattery = PhotoImage(file='Images/chargbatery.png')
         #Battery Charge
         self.batteryCharge = self.batteryCanvas.create_rectangle(
             69, 122, 5, 122, fill="#A10000")
