@@ -17,21 +17,19 @@ class App:
         photo = PhotoImage(file="Images/logo.png")
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
-        self.battery = Battery(self) 
-        #self.driver=Driver(self)       
+        self.battery = Battery(self)
+        self.signals=Signals(self) 
 
-''' class Driver:
+class Signals:
     def __init__(self, obj):
-        self.driverCanvas = Canvas(
-            obj.window, height=200, width=400, background="white", highlightthickness=0)
-        self.driver = PhotoImage(file='driver.png')
-        self.driverCanvas.create_image(
-            100, 100, image=self.driver, anchor=CENTER)
-        self.driverCanvas.pack()
-        self.driverCanvas.place(relx=1, rely=0.5, anchor=CENTER)
-        self.driverTxt = self.driverCanvas.create_text(
-            100, 40, fill="black", text="DRIVER", font=('Helvetica 20 bold')) '''
-            
+        #SPEED Canvas
+        self.signalCanvas = Canvas(
+            obj.window, height=100, width=500, background="white", highlightthickness=5)
+        self.rightSignal = [PhotoImage(file='Images/right_off.png'),PhotoImage(file='Images/right_on.png')]
+        self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
+        self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
+        self.signalCanvas.place(relx=0.5, rely=1.0, anchor=S)
+        
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -55,13 +53,13 @@ class Battery:
         #Battery Canvas
         self.batteryCanvas = Canvas(obj.window, height=125, width=74,
                                     background="white", highlightthickness=1)
-        self.normalbattery = PhotoImage(file='Images/normalbattery.png')
-        self.chargingbattery = PhotoImage(file='Images/chargbatery.png')
+        self.batteryImages = [PhotoImage(
+            file='Images/normalbattery.png'), PhotoImage(file='Images/chargbatery.png')]
         #Battery Charge
         self.batteryCharge = self.batteryCanvas.create_rectangle(
             69, 122, 5, 122, fill="#A10000")
         self.batteryImage = self.batteryCanvas.create_image(
-            0, 2, image=self.normalbattery, anchor=NW)
+            0, 2, image=self.batteryImages[0], anchor=NW)
         self.batteryCanvas.place(relx=0.0, rely=1.0, anchor=SW)
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
@@ -123,7 +121,7 @@ def batteryUP(obj):
         obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
             69, 122, 5, x, fill=color)
         obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-            0, 2, image=obj.battery.chargingbattery, anchor=NW)
+            0, 2, image=obj.battery.batteryImages[1], anchor=NW)
         obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
             37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
 
@@ -140,7 +138,7 @@ def batteryDOWN(obj):
             69, 122, 5, x, fill=color)
 
         obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-            0, 2, image=obj.battery.normalbattery, anchor=NW)
+            0, 2, image=obj.battery.batteryImages[0], anchor=NW)
         obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
             37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
 
