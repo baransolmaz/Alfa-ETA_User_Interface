@@ -1,3 +1,4 @@
+import time
 from tkinter import *
 import math
 
@@ -9,7 +10,7 @@ class App:
         self.window.geometry(str(self.screen_width)+"x" +
                              str(self.screen_height))  # Screen Size
 
-        self.window.minsize(500, 500)
+        self.window.minsize(800,600)
         self.window.title("ALFA-ETA")  # Pencere ismi
         self.window.iconname("ALFA-ETA")
         self.window.config(background="white")
@@ -22,14 +23,20 @@ class App:
 
 class Signals:
     def __init__(self, obj):
-        #SPEED Canvas
-        self.signalCanvas = Canvas(
-            obj.window, height=100, width=500, background="white", highlightthickness=5)
-        self.rightSignal = [PhotoImage(file='Images/right_off.png'),PhotoImage(file='Images/right_on.png')]
+        #Signals Canvas
+        self.allSignals=[0,0,0]#Engine,Left,Right
+        self.rightSignal = [PhotoImage(file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
         self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
         self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
-        self.signalCanvas.place(relx=0.5, rely=1.0, anchor=S)
-        
+        self.signalFrame = Frame(
+            obj.window, height=135, width=800, background="black", highlightthickness=5)
+        self.signalFrame.pack(side=BOTTOM)
+        self.engineLabel = Label(self.signalFrame, image=self.engineSignal[0])
+        self.engineLabel.pack(side=LEFT)
+        self.leftLabel = Label(self.signalFrame, image=self.leftSignal[0])
+        self.leftLabel.pack(side=LEFT)
+        self.rightLabel = Label(self.signalFrame, image=self.rightSignal[0])
+        self.rightLabel.pack(side=LEFT)        
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -67,7 +74,7 @@ class Battery:
         self.allBatteries = Toplevel(obj.window)
         self.allBatteries.destroy()
 
-def speedUP(obj):
+def speedUP(obj,speed=0):
     if obj.speedometer.angle < 270:
         #angle =90 + 1.8*speed
         obj.speedometer.angle += 1.8
@@ -81,7 +88,8 @@ def speedUP(obj):
             100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
 
     obj.window.update()
-def speedDOWN(obj):
+
+def speedDOWN(obj, speed=0):
     if obj.speedometer.angle > 90:
         #angle =90 + 1.8*speed
         obj.speedometer.angle -= 1.8
@@ -110,7 +118,7 @@ def colorPicker(charge):
                     return "#AAB900"
                 else:
                     return "#71B400"
-def batteryUP(obj):
+def batteryUP(obj,charge=0):
     if obj.battery.charge < 100:
         obj.battery.charge += 1
         x = 122 - int(obj.battery.charge*1.04)
@@ -126,7 +134,7 @@ def batteryUP(obj):
             37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
 
     obj.window.update()
-def batteryDOWN(obj):
+def batteryDOWN(obj,charge=0):
     if obj.battery.charge > 0:
         obj.battery.charge -= 1
         x = 122 - int(obj.battery.charge*1.04)
@@ -155,6 +163,46 @@ def showAllBatteries(obj):
         
         obj.allBatteries.mainloop()
 
+def change(obj):
+    time.sleep(2)
+    changeSignals(obj,[0,1,1])
+    time.sleep(2)
+    changeSignals(obj, [0, 0, 0])
+    time.sleep(2)
+    changeSignals(obj, [1, 0, 0])
+    time.sleep(2)
+    changeSignals(obj, [0, 1,0])
+    time.sleep(2)
+    changeSignals(obj, [1, 1, 1])
+    
+def changeSignals(obj,signals):
+    obj.signals.engineLabel.destroy()
+    obj.signals.leftLabel.destroy()
+    obj.signals.rightLabel.destroy()
+    engineSignal(obj.signals,signals[0])
+    leftSignal(obj.signals, signals[1])
+    rightSignal(obj.signals, signals[2])
+
+def engineSignal(obj,signal):
+    if signal == 0:
+        obj.engineLabel = Label(obj.signalFrame, image=obj.engineSignal[0])
+    else:
+        obj.engineLabel = Label(obj.signalFrame, image=obj.engineSignal[1])
+    obj.engineLabel.pack(side=LEFT)
+
+def leftSignal(obj, signal):
+    if signal == 0:
+        obj.leftLabel = Label(obj.signalFrame, image=obj.leftSignal[0])
+    else:
+        obj.leftLabel = Label(obj.signalFrame, image=obj.leftSignal[1])
+    obj.leftLabel.pack(side=LEFT)
+    
+def rightSignal(obj, signal):
+    if signal == 0:
+        obj.rightLabel = Label(obj.signalFrame, image=obj.rightSignal[0])
+    else:
+        obj.rightLabel = Label(obj.signalFrame, image=obj.rightSignal[1])
+    obj.rightLabel.pack(side=LEFT)
 
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
@@ -163,4 +211,6 @@ app.window.bind("<Left>", lambda event, obj=app: batteryUP(obj))
 app.window.bind("<Right>", lambda event, obj=app: batteryDOWN(obj))
 app.battery.batteryCanvas.bind(
     "<Button-1>", lambda event, obj=app.battery: showAllBatteries(obj))
+app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
+
 app.window.mainloop()
