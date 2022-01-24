@@ -30,14 +30,17 @@ class Signals:
         self.signalFrame = Frame(
             obj.window, height=135, width=800, background="white", highlightthickness=5)
         self.signalFrame.pack(side=BOTTOM)
-        self.engineLabel = Label(self.signalFrame, image=self.engineSignal[0])
+        self.engineLabel = Label(
+            self.signalFrame, image=self.engineSignal[0], bg="white")
         self.engineLabel.pack(side=LEFT)
-        self.leftLabel = Label(self.signalFrame, image=self.leftSignal[0])
+        self.leftLabel = Label(
+            self.signalFrame, image=self.leftSignal[0], bg="white")
         self.leftLabel.pack(side=LEFT)
-        self.rightLabel = Label(self.signalFrame, image=self.rightSignal[0])
+        self.rightLabel = Label(
+            self.signalFrame, image=self.rightSignal[0], bg="white")
         self.rightLabel.pack(side=LEFT)
         self.thermoLabel = Label(
-            self.signalFrame, image=self.thermometer[0], text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
+            self.signalFrame, image=self.thermometer[0],bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
         self.thermoLabel.pack(side=LEFT)
 
 class Speedometer:
@@ -196,23 +199,29 @@ def changeSignals(obj,signals):
 
 def engineSignal(obj,signal):
     if signal == 0:
-        obj.engineLabel = Label(obj.signalFrame, image=obj.engineSignal[0])
+        obj.engineLabel = Label(
+            obj.signalFrame, image=obj.engineSignal[0], bg="white")
     else:
-        obj.engineLabel = Label(obj.signalFrame, image=obj.engineSignal[1])
+        obj.engineLabel = Label(
+            obj.signalFrame, image=obj.engineSignal[1], bg="white")
     obj.engineLabel.pack(side=LEFT)
 
 def leftSignal(obj, signal):
     if signal == 0:
-        obj.leftLabel = Label(obj.signalFrame, image=obj.leftSignal[0])
+        obj.leftLabel = Label(
+            obj.signalFrame, image=obj.leftSignal[0], bg="white")
     else:
-        obj.leftLabel = Label(obj.signalFrame, image=obj.leftSignal[1])
+        obj.leftLabel = Label(
+            obj.signalFrame, image=obj.leftSignal[1], bg="white")
     obj.leftLabel.pack(side=LEFT)
     
 def rightSignal(obj, signal):
     if signal == 0:
-        obj.rightLabel = Label(obj.signalFrame, image=obj.rightSignal[0])
+        obj.rightLabel = Label(
+            obj.signalFrame, image=obj.rightSignal[0], bg="white")
     else:
-        obj.rightLabel = Label(obj.signalFrame, image=obj.rightSignal[1])
+        obj.rightLabel = Label(
+            obj.signalFrame, image=obj.rightSignal[1], bg="white")
     obj.rightLabel.pack(side=LEFT)
 
 def thermoSignal(obj,signal):
@@ -220,7 +229,7 @@ def thermoSignal(obj,signal):
     if signal > 40:
         img = obj.thermometer[1]
     obj.thermoLabel = Label(
-        obj.signalFrame, image=img, text=str(signal), compound=TOP, fg="black", font=('Helvetica 16 bold'))
+        obj.signalFrame, image=img, text=str(signal), bg="white", compound=TOP, fg="black", font=('Helvetica 16 bold'))
     obj.thermoLabel.pack(side=LEFT)
     
 app = App()
