@@ -166,14 +166,20 @@ def showAllBatteries(obj):
 def change(obj):
     time.sleep(2)
     changeSignals(obj,[0,1,1])
+    obj.window.update()
     time.sleep(2)
+    obj.window.update()
     changeSignals(obj, [0, 0, 0])
+    obj.window.update()
     time.sleep(2)
     changeSignals(obj, [1, 0, 0])
+    obj.window.update()
     time.sleep(2)
     changeSignals(obj, [0, 1,0])
+    obj.window.update()
     time.sleep(2)
     changeSignals(obj, [1, 1, 1])
+    obj.window.update()
     
 def changeSignals(obj,signals):
     obj.signals.engineLabel.destroy()
