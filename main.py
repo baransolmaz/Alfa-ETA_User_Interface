@@ -1,15 +1,13 @@
 import time
 from tkinter import *
 import math
-
+from turtle import up
 class App:
     def __init__(self):
         self.window = Tk()
         self.screen_width = self.window.winfo_screenwidth()
         self.screen_height = self.window.winfo_screenheight()
-        self.window.geometry(str(self.screen_width)+"x" +
-                             str(self.screen_height))  # Screen Size
-
+        self.window.geometry(str(self.screen_width)+"x"+str(self.screen_height))  # Screen Size
         self.window.minsize(800,600)
         self.window.title("ALFA-ETA")  # Pencere ismi
         self.window.iconname("ALFA-ETA")
@@ -28,15 +26,20 @@ class Signals:
         self.rightSignal = [PhotoImage(file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
         self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
         self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
+        self.thermometer = [PhotoImage(file='Images/thermometer_ok.png'),PhotoImage(file='Images/thermometer_bad.png')]
         self.signalFrame = Frame(
-            obj.window, height=135, width=800, background="black", highlightthickness=5)
+            obj.window, height=135, width=800, background="white", highlightthickness=5)
         self.signalFrame.pack(side=BOTTOM)
         self.engineLabel = Label(self.signalFrame, image=self.engineSignal[0])
         self.engineLabel.pack(side=LEFT)
         self.leftLabel = Label(self.signalFrame, image=self.leftSignal[0])
         self.leftLabel.pack(side=LEFT)
         self.rightLabel = Label(self.signalFrame, image=self.rightSignal[0])
-        self.rightLabel.pack(side=LEFT)        
+        self.rightLabel.pack(side=LEFT)
+        self.thermoLabel = Label(
+            self.signalFrame, image=self.thermometer[0], text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
+        self.thermoLabel.pack(side=LEFT)
+
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -164,30 +167,32 @@ def showAllBatteries(obj):
         obj.allBatteries.mainloop()
 
 def change(obj):
-    time.sleep(2)
-    changeSignals(obj,[0,1,1])
+    time.sleep(0.5)
+    changeSignals(obj,[0,1,1,55])
     obj.window.update()
-    time.sleep(2)
+    time.sleep(0.5)
     obj.window.update()
-    changeSignals(obj, [0, 0, 0])
+    changeSignals(obj, [0, 0, 0,20])
     obj.window.update()
-    time.sleep(2)
-    changeSignals(obj, [1, 0, 0])
+    time.sleep(0.5)
+    changeSignals(obj, [1, 0, 0,100])
     obj.window.update()
-    time.sleep(2)
-    changeSignals(obj, [0, 1,0])
+    time.sleep(0.5)
+    changeSignals(obj, [0, 1,0,9])
     obj.window.update()
-    time.sleep(2)
-    changeSignals(obj, [1, 1, 1])
+    time.sleep(0.5)
+    changeSignals(obj, [1, 1, 1,45])
     obj.window.update()
     
 def changeSignals(obj,signals):
     obj.signals.engineLabel.destroy()
     obj.signals.leftLabel.destroy()
     obj.signals.rightLabel.destroy()
+    obj.signals.thermoLabel.destroy()
     engineSignal(obj.signals,signals[0])
     leftSignal(obj.signals, signals[1])
     rightSignal(obj.signals, signals[2])
+    thermoSignal(obj.signals, signals[3])
 
 def engineSignal(obj,signal):
     if signal == 0:
@@ -210,6 +215,14 @@ def rightSignal(obj, signal):
         obj.rightLabel = Label(obj.signalFrame, image=obj.rightSignal[1])
     obj.rightLabel.pack(side=LEFT)
 
+def thermoSignal(obj,signal):
+    img = obj.thermometer[0]
+    if signal > 40:
+        img = obj.thermometer[1]
+    obj.thermoLabel = Label(
+        obj.signalFrame, image=img, text=str(signal), compound=TOP, fg="black", font=('Helvetica 16 bold'))
+    obj.thermoLabel.pack(side=LEFT)
+    
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
 app.window.bind("<Down>", lambda event, obj=app: speedDOWN(obj))
