@@ -27,9 +27,16 @@ class Signals:
         self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
         self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
         self.thermometer = [PhotoImage(file='Images/thermometer_ok.png'),PhotoImage(file='Images/thermometer_bad.png')]
+        self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
         self.signalFrame = Frame(
             obj.window, height=135, width=800, background="white", highlightthickness=5)
         self.signalFrame.pack(side=BOTTOM)
+        self.currentLabel = Label(
+            self.signalFrame, image=self.electroSignal[0], bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
+        self.currentLabel.pack(side=LEFT)
+        self.voltageLabel = Label(
+            self.signalFrame, image=self.electroSignal[1], bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
+        self.voltageLabel.pack(side=LEFT)
         self.engineLabel = Label(
             self.signalFrame, image=self.engineSignal[0], bg="white")
         self.engineLabel.pack(side=LEFT)
@@ -171,33 +178,41 @@ def showAllBatteries(obj):
 
 def change(obj):
     time.sleep(0.5)
-    changeSignals(obj,[0,1,1,55])
+    changeSignals(obj,[3,46,0,1,1,55])
     obj.window.update()
     time.sleep(0.5)
     obj.window.update()
-    changeSignals(obj, [0, 0, 0,20])
+    changeSignals(obj, [10,15,0, 0, 0,20])
     obj.window.update()
     time.sleep(0.5)
-    changeSignals(obj, [1, 0, 0,100])
+    changeSignals(obj, [36,54,1, 0, 0,100])
     obj.window.update()
     time.sleep(0.5)
-    changeSignals(obj, [0, 1,0,9])
+    changeSignals(obj, [0,0,0, 1,0,9])
     obj.window.update()
     time.sleep(0.5)
-    changeSignals(obj, [1, 1, 1,45])
+    changeSignals(obj, [99,99,1, 1, 1,45])
     obj.window.update()
     
 def changeSignals(obj,signals):
-    obj.signals.engineLabel.destroy()
-    obj.signals.leftLabel.destroy()
-    obj.signals.rightLabel.destroy()
-    obj.signals.thermoLabel.destroy()
-    engineSignal(obj.signals,signals[0])
-    leftSignal(obj.signals, signals[1])
-    rightSignal(obj.signals, signals[2])
-    thermoSignal(obj.signals, signals[3])
+    electroSignal(obj.signals,signals[0:2])
+    engineSignal(obj.signals,signals[2])
+    leftSignal(obj.signals, signals[3])
+    rightSignal(obj.signals, signals[4])
+    thermoSignal(obj.signals, signals[5])
 
+def electroSignal(obj, signal):
+    obj.currentLabel.destroy()
+    obj.voltageLabel.destroy()
+    obj.currentLabel = Label(
+        obj.signalFrame, image=obj.electroSignal[0], bg="white", text=str(signal[0])+" I", compound=TOP, fg="black", font=('Helvetica 16 bold'))
+    obj.currentLabel.pack(side=LEFT)
+    obj.voltageLabel = Label(
+        obj.signalFrame, image=obj.electroSignal[1], bg="white", text=str(signal[1])+" V", compound=TOP, fg="black", font=('Helvetica 16 bold'))
+    obj.voltageLabel.pack(side=LEFT)
+    
 def engineSignal(obj,signal):
+    obj.engineLabel.destroy()
     if signal == 0:
         obj.engineLabel = Label(
             obj.signalFrame, image=obj.engineSignal[0], bg="white")
@@ -207,6 +222,7 @@ def engineSignal(obj,signal):
     obj.engineLabel.pack(side=LEFT)
 
 def leftSignal(obj, signal):
+    obj.leftLabel.destroy()
     if signal == 0:
         obj.leftLabel = Label(
             obj.signalFrame, image=obj.leftSignal[0], bg="white")
@@ -216,6 +232,7 @@ def leftSignal(obj, signal):
     obj.leftLabel.pack(side=LEFT)
     
 def rightSignal(obj, signal):
+    obj.rightLabel.destroy()
     if signal == 0:
         obj.rightLabel = Label(
             obj.signalFrame, image=obj.rightSignal[0], bg="white")
@@ -225,13 +242,14 @@ def rightSignal(obj, signal):
     obj.rightLabel.pack(side=LEFT)
 
 def thermoSignal(obj,signal):
+    obj.thermoLabel.destroy()
     img = obj.thermometer[0]
     if signal > 40:
         img = obj.thermometer[1]
     obj.thermoLabel = Label(
         obj.signalFrame, image=img, text=str(signal), bg="white", compound=TOP, fg="black", font=('Helvetica 16 bold'))
     obj.thermoLabel.pack(side=LEFT)
-    
+        
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
 app.window.bind("<Down>", lambda event, obj=app: speedDOWN(obj))
