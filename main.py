@@ -166,10 +166,16 @@ def showAllBatteries(obj):
         obj.allBatteries.lift()
     else:
         obj.allBatteries = Toplevel()
-        obj.allBatteries.geometry("600x500")
-        obj.allBatteryCanvas = Canvas(obj.allBatteries, height=500, width=600,
+        obj.allBatteries.geometry("800x600")
+        obj.allBatteryCanvas = Canvas(obj.allBatteries, width=800, height=600,
                                background="white", highlightthickness=1)
-        
+        x=80
+        y=130
+        for i in range(0,8):
+            for j in range(0,4):
+                obj.allBatteryCanvas.create_image(
+                    (x*i)+10,(y*j)+10, image=obj.batteryImages[0], anchor=NW)
+        obj.allBatteryCanvas.pack()
         obj.allBatteries.mainloop()
 
 def change(obj):
