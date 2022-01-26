@@ -1,7 +1,6 @@
 import time
 from tkinter import *
 import math
-from turtle import up
 class App:
     def __init__(self):
         self.window = Tk()
@@ -18,11 +17,10 @@ class App:
         self.speedometer = Speedometer(self)
         self.battery = Battery(self)
         self.signals=Signals(self) 
-
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
-        self.allSignals=[0,0,0]#Engine,Left,Right
+        self.allSignals=[0,0,0,0,0,0]#Current,Voltage,Engine,Left,Right,Tempereture
         self.rightSignal = [PhotoImage(file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
         self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
         self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
@@ -49,7 +47,6 @@ class Signals:
         self.thermoLabel = Label(
             self.signalFrame, image=self.thermometer[0],bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
         self.thermoLabel.pack(side=LEFT)
-
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -101,7 +98,6 @@ def speedUP(obj,speed=0):
             100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
 
     obj.window.update()
-
 def speedDOWN(obj, speed=0):
     if obj.speedometer.angle > 90:
         #angle =90 + 1.8*speed
@@ -181,11 +177,10 @@ def change(obj):
     changeSignals(obj,[3,46,0,1,1,55])
     obj.window.update()
     time.sleep(0.5)
-    obj.window.update()
     changeSignals(obj, [10,15,0, 0, 0,20])
     obj.window.update()
     time.sleep(0.5)
-    changeSignals(obj, [36,54,1, 0, 0,100])
+    changeSignals(obj, [36,54,1, 0, 1,100])
     obj.window.update()
     time.sleep(0.5)
     changeSignals(obj, [0,0,0, 1,0,9])
@@ -193,7 +188,31 @@ def change(obj):
     time.sleep(0.5)
     changeSignals(obj, [99,99,1, 1, 1,45])
     obj.window.update()
-    
+    time.sleep(0.5)
+    changeSignals(obj, [0,0,0,0,0,0])
+    obj.window.update()
+
+def change_leftSignal(obj):
+    time.sleep(0.5)
+    changeSignals(obj, [0,0,0,1,0,0])
+    obj.window.update()
+    time.sleep(0.5)
+    obj.window.update()
+    changeSignals(obj, [0,0,0,0,0,0])
+    obj.window.update()
+    time.sleep(0.5)
+    changeSignals(obj, [0,0,0,1,0,0])
+    obj.window.update()
+    time.sleep(0.5)
+    changeSignals(obj, [0,0,0,0,0,0])
+    obj.window.update()
+    time.sleep(0.5)
+    changeSignals(obj, [0,0,0,1,0,0])
+    obj.window.update()
+    time.sleep(0.5)
+    changeSignals(obj, [0, 0, 0, 0, 0, 0])
+    obj.window.update()
+
 def changeSignals(obj,signals):
     electroSignal(obj.signals,signals[0:2])
     engineSignal(obj.signals,signals[2])
