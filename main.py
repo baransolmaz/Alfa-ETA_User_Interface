@@ -81,7 +81,7 @@ class Battery:
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
         self.charge = 0
-        self.allBatteries = Toplevel(obj.window)
+        self.allBatteries = Toplevel()
         self.allBatteries.destroy()
 
 def speedUP(obj,speed=0):
@@ -166,15 +166,16 @@ def showAllBatteries(obj):
         obj.allBatteries.lift()
     else:
         obj.allBatteries = Toplevel()
-        obj.allBatteries.geometry("800x600")
-        obj.allBatteryCanvas = Canvas(obj.allBatteries, width=800, height=600,
+        obj.allBatteries.geometry("655x530")
+        obj.allBatteries.resizable(FALSE,FALSE)
+        obj.allBatteryCanvas = Canvas(obj.allBatteries, width=655, height=530,
                                background="white", highlightthickness=1)
         x=80
         y=130
         for i in range(0,8):
             for j in range(0,4):
                 obj.allBatteryCanvas.create_image(
-                    (x*i)+10,(y*j)+10, image=obj.batteryImages[0], anchor=NW)
+                    (x*i)+10,(y*j)+10, image=obj.batteryImages[1], anchor=NW)
         obj.allBatteryCanvas.pack()
         obj.allBatteries.mainloop()
 
