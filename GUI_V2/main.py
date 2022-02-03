@@ -12,11 +12,11 @@ class App:
         self.window.iconname("ALFA-ETA")
         self.window.config(background="white")
         #app icon
-        photo = PhotoImage(file="Images/logo.png")
+        ''' photo = PhotoImage(file="Images/logo.png")
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
         self.battery = Battery(self)
-        self.signals=Signals(self) 
+        self.signals=Signals(self)  '''
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
@@ -277,12 +277,12 @@ def thermoSignal(obj,signal):
     obj.thermoLabel.pack(side=LEFT)
         
 app = App()
-app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
+''' app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
 app.window.bind("<Down>", lambda event, obj=app: speedDOWN(obj))
 app.window.bind("<Left>", lambda event, obj=app: batteryUP(obj))
 app.window.bind("<Right>", lambda event, obj=app: batteryDOWN(obj))
 app.battery.batteryCanvas.bind(
     "<Button-1>", lambda event, obj=app.battery: showAllBatteries(obj))
-app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
+app.window.bind("<BackSpace>", lambda event, obj=app: change(obj)) '''
 
 app.window.mainloop()
