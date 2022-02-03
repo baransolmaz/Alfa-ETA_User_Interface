@@ -6,17 +6,17 @@ class App:
         self.window = Tk()
         self.screen_width = self.window.winfo_screenwidth()
         self.screen_height = self.window.winfo_screenheight()
-        self.window.geometry(str(self.screen_width)+"x"+str(self.screen_height))  # Screen Size
-        self.window.minsize(800,600)
-        self.window.title("ALFA-ETA")  # Pencere ismi
+        self.window.geometry("850x650")  # Screen Size
+        self.window.resizable(0, 0)
+        self.window.title("ALFA-ETA") # Pencere ismi
         self.window.iconname("ALFA-ETA")
         self.window.config(background="white")
         #app icon
-        ''' photo = PhotoImage(file="Images/logo.png")
+        photo = PhotoImage(file="Images/logo.png")
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
         self.battery = Battery(self)
-        self.signals=Signals(self)  '''
+        '''self.signals=Signals(self)  '''
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
@@ -66,7 +66,7 @@ class Speedometer:
         self.speedTxt = self.speedCanvas.create_text(
             100, 65, fill="black", text="0", font=('Helvetica 20 bold'))
 class Battery:
-    def __init__(self, obj):
+    def __init__(self, obj,x=69,y=5):
         #Battery Canvas
         self.batteryCanvas = Canvas(obj.window, height=125, width=74,
                                     background="white", highlightthickness=1)
@@ -83,11 +83,28 @@ class Battery:
         self.charge = 0
         self.allBatteries = Toplevel()
         self.allBatteries.destroy()
-
-def speedUP(obj,speed=0):
-    if obj.speedometer.angle < 270:
-        #angle =90 + 1.8*speed
-        obj.speedometer.angle += 1.8
+def changeSpeed(obj):
+    for i in range(0,80):
+        updateSpeed(obj,i)
+    for i in range(80,40,-1):
+        updateSpeed(obj, i)
+    for i in range(40,100):
+        updateSpeed(obj, i)
+    for i in range(100,0, -1):
+        updateSpeed(obj, i)
+def changeBattery(obj):
+    for i in range(0, 80):
+        updateBattery(obj, i)
+    for i in range(80, 40, -1):
+        updateBattery(obj, i)
+    for i in range(40, 100):
+        updateBattery(obj, i)
+    for i in range(100, 0, -1):
+        updateBattery(obj, i)
+def updateSpeed(obj, speed=0):
+    if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
+        obj.speedometer.angle = 90 + 1.8*speed
+        #obj.speedometer.angle += 1.8
         x = 100 - 100*math.sin(math.radians(obj.speedometer.angle))
         y = 100 + 100*math.cos(math.radians(obj.speedometer.angle))
         obj.speedometer.speedCanvas.delete(obj.speedometer.speedTxt)
@@ -98,68 +115,38 @@ def speedUP(obj,speed=0):
             100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
 
     obj.window.update()
-def speedDOWN(obj, speed=0):
-    if obj.speedometer.angle > 90:
-        #angle =90 + 1.8*speed
-        obj.speedometer.angle -= 1.8
-        x = 100 - 100*math.sin(math.radians(obj.speedometer.angle))
-        y = 100 + 100*math.cos(math.radians(obj.speedometer.angle))
-        global speedArrow, speedTxt
-        obj.speedometer.speedCanvas.delete(obj.speedometer.speedTxt)
-        obj.speedometer.speedCanvas.delete(obj.speedometer.speedArrow)
-        obj.speedometer.speedTxt = obj.speedometer.speedCanvas.create_text(100, 65, fill="black", text=str(
-            int((obj.speedometer.angle-90)/1.8)), font=('Helvetica 20 bold'))
-        obj.speedometer.speedArrow = obj.speedometer.speedCanvas.create_line(
-            100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
+def updateBattery(obj, charge=0):
+    if (obj.battery.charge > 0) or (obj.battery.charge < 100):
+        obj.battery.batteryCanvas.delete(obj.battery.batteryCharge)
+        obj.battery.batteryCanvas.delete(obj.battery.batteryTxt)
+        obj.battery.batteryCanvas.delete(obj.battery.batteryImage)
+        
+        x = 122 - int(charge*1.04)
+        color = colorPicker(charge)
+        obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
+            69, 122, 5, x, fill=color)
+        if charge >= obj.battery.charge:
+            obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
+                0, 2, image=obj.battery.batteryImages[1], anchor=NW)
+        else:
+            obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
+                0, 2, image=obj.battery.batteryImages[0], anchor=NW)
+        obj.battery.charge = charge
+        obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
+            37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
 
     obj.window.update()
 def colorPicker(charge):
     if charge < 20:
         return "#A10000"
+    elif charge < 40:
+        return "#C25F00"
+    elif charge < 60:
+        return "#E2BE00"
+    elif charge < 80:
+        return "#AAB900"
     else:
-        if charge < 40:
-            return "#C25F00"
-        else:
-            if charge < 60:
-                return "#E2BE00"
-            else:
-                if charge < 80:
-                    return "#AAB900"
-                else:
-                    return "#71B400"
-def batteryUP(obj,charge=0):
-    if obj.battery.charge < 100:
-        obj.battery.charge += 1
-        x = 122 - int(obj.battery.charge*1.04)
-        color = colorPicker(obj.battery.charge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryCharge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryTxt)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryImage)
-        obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
-            69, 122, 5, x, fill=color)
-        obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-            0, 2, image=obj.battery.batteryImages[1], anchor=NW)
-        obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
-            37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
-
-    obj.window.update()
-def batteryDOWN(obj,charge=0):
-    if obj.battery.charge > 0:
-        obj.battery.charge -= 1
-        x = 122 - int(obj.battery.charge*1.04)
-        color = colorPicker(obj.battery.charge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryCharge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryTxt)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryImage)
-        obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
-            69, 122, 5, x, fill=color)
-
-        obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-            0, 2, image=obj.battery.batteryImages[0], anchor=NW)
-        obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
-            37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
-
-    obj.window.update()
+        return "#71B400"
     
 def showAllBatteries(obj):
     if obj.allBatteries.winfo_exists():
@@ -277,11 +264,10 @@ def thermoSignal(obj,signal):
     obj.thermoLabel.pack(side=LEFT)
         
 app = App()
-''' app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
-app.window.bind("<Down>", lambda event, obj=app: speedDOWN(obj))
-app.window.bind("<Left>", lambda event, obj=app: batteryUP(obj))
-app.window.bind("<Right>", lambda event, obj=app: batteryDOWN(obj))
-app.battery.batteryCanvas.bind(
+app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
+app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
+
+'''app.battery.batteryCanvas.bind(
     "<Button-1>", lambda event, obj=app.battery: showAllBatteries(obj))
 app.window.bind("<BackSpace>", lambda event, obj=app: change(obj)) '''
 
