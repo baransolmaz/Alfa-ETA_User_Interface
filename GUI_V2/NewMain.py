@@ -15,7 +15,10 @@ class App:
         photo = PhotoImage(file="Images/logo.png")
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
-        self.battery = Battery(self)
+        self.mainBattery = Battery(self,0,525)
+        x = 130 ; y = 80
+        self.allBatteries = [Battery(self, (y*j)+5, (x*i)+5)  for j in range(8) for i in range(4)]
+        
         '''self.signals=Signals(self)  '''
 class Signals:
     def __init__(self, obj):
@@ -66,7 +69,7 @@ class Speedometer:
         self.speedTxt = self.speedCanvas.create_text(
             100, 65, fill="black", text="0", font=('Helvetica 20 bold'))
 class Battery:
-    def __init__(self, obj,x=69,y=5):
+    def __init__(self, obj,_x_=100,_y_=100):
         #Battery Canvas
         self.batteryCanvas = Canvas(obj.window, height=125, width=74,
                                     background="white", highlightthickness=1)
@@ -77,12 +80,11 @@ class Battery:
             69, 122, 5, 122, fill="#A10000")
         self.batteryImage = self.batteryCanvas.create_image(
             0, 2, image=self.batteryImages[0], anchor=NW)
-        self.batteryCanvas.place(relx=0.0, rely=1.0, anchor=SW)
+        self.batteryCanvas.place(x=_x_, y=_y_)
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
         self.charge = 0
-        self.allBatteries = Toplevel()
-        self.allBatteries.destroy()
+
 def changeSpeed(obj):
     for i in range(0,80):
         updateSpeed(obj,i)
@@ -94,13 +96,17 @@ def changeSpeed(obj):
         updateSpeed(obj, i)
 def changeBattery(obj):
     for i in range(0, 80):
-        updateBattery(obj, i)
+        updateBattery(obj.mainBattery, i)
+        obj.window.update()
     for i in range(80, 40, -1):
-        updateBattery(obj, i)
+        updateBattery(obj.mainBattery, i)
+        obj.window.update()
     for i in range(40, 100):
-        updateBattery(obj, i)
+        updateBattery(obj.mainBattery, i)
+        obj.window.update()
     for i in range(100, 0, -1):
-        updateBattery(obj, i)
+        updateBattery(obj.mainBattery, i)
+        obj.window.update()
 def updateSpeed(obj, speed=0):
     if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
         obj.speedometer.angle = 90 + 1.8*speed
@@ -116,26 +122,25 @@ def updateSpeed(obj, speed=0):
 
     obj.window.update()
 def updateBattery(obj, charge=0):
-    if (obj.battery.charge > 0) or (obj.battery.charge < 100):
-        obj.battery.batteryCanvas.delete(obj.battery.batteryCharge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryTxt)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryImage)
+    if (obj.charge > 0) or (obj.charge < 100):
+        obj.batteryCanvas.delete(obj.batteryCharge)
+        obj.batteryCanvas.delete(obj.batteryTxt)
+        obj.batteryCanvas.delete(obj.batteryImage)
         
         x = 122 - int(charge*1.04)
         color = colorPicker(charge)
-        obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
+        obj.batteryCharge = obj.batteryCanvas.create_rectangle(
             69, 122, 5, x, fill=color)
-        if charge >= obj.battery.charge:
-            obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-                0, 2, image=obj.battery.batteryImages[1], anchor=NW)
+        if charge >= obj.charge:
+            obj.batteryImage = obj.batteryCanvas.create_image(
+                0, 2, image=obj.batteryImages[1], anchor=NW)
         else:
-            obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-                0, 2, image=obj.battery.batteryImages[0], anchor=NW)
-        obj.battery.charge = charge
-        obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
-            37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
+            obj.batteryImage = obj.batteryCanvas.create_image(
+                0, 2, image=obj.batteryImages[0], anchor=NW)
+        obj.charge = charge
+        obj.batteryTxt = obj.batteryCanvas.create_text(
+            37.5, 110, fill="black", text=str(obj.charge), font=('Helvetica 16 bold'))
 
-    obj.window.update()
 def colorPicker(charge):
     if charge < 20:
         return "#A10000"
@@ -148,24 +153,6 @@ def colorPicker(charge):
     else:
         return "#71B400"
     
-def showAllBatteries(obj):
-    if obj.allBatteries.winfo_exists():
-        obj.allBatteries.lift()
-    else:
-        obj.allBatteries = Toplevel()
-        obj.allBatteries.geometry("655x530")
-        obj.allBatteries.resizable(FALSE,FALSE)
-        obj.allBatteryCanvas = Canvas(obj.allBatteries, width=655, height=530,
-                               background="white", highlightthickness=1)
-        x=80
-        y=130
-        for i in range(0,8):
-            for j in range(0,4):
-                obj.allBatteryCanvas.create_image(
-                    (x*i)+10,(y*j)+10, image=obj.batteryImages[1], anchor=NW)
-        obj.allBatteryCanvas.pack()
-        obj.allBatteries.mainloop()
-
 def change(obj):
     time.sleep(0.5)
     changeSignals(obj,[3,46,0,1,1,55])
@@ -267,8 +254,6 @@ app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
 
-'''app.battery.batteryCanvas.bind(
-    "<Button-1>", lambda event, obj=app.battery: showAllBatteries(obj))
-app.window.bind("<BackSpace>", lambda event, obj=app: change(obj)) '''
+#app.window.bind("<BackSpace>", lambda event, obj=app: change(obj)) #
 
 app.window.mainloop()
