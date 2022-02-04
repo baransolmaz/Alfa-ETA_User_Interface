@@ -1,6 +1,12 @@
+import sys
 import time
 from tkinter import *
 import math
+from PyQt5.QtCore import *
+from PyQt5.QtWebEngineWidgets import *
+from PyQt5.QtWidgets import QApplication
+import folium
+import threading as th
 class App:
     def __init__(self):
         self.window = Tk()
@@ -19,6 +25,9 @@ class App:
         x = 80 ; y = 130
         self.allBatteries = [[Battery(self, (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
         self.signals=Signals(self)
+        self.location=Location(self)
+        self.button = Button(self.window, text='Open Map !', bd='1')
+        self.button.place(x=400, y=600)
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
@@ -126,6 +135,21 @@ class Battery:
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
         self.charge = 0
+class Location:
+    def __init__(self,obj):
+        self.location = [40.901641, 29.225841]  # x,y
+        self.locationCanvas = Canvas(obj.window, height=50, width=200,
+                                     background="white", highlightthickness=1)
+        self.locationCanvas.place(x=400,y=550)
+        self._X_ = self.locationCanvas.create_text(
+            20,15, fill="black", text="X: ", font=('Helvetica 16 bold'))
+        self._Y_ = self.locationCanvas.create_text(
+            20,40, fill="black", text="Y: ", font=('Helvetica 16 bold'))
+        self._X_Loc = self.locationCanvas.create_text(
+            40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'),anchor=W)
+        self._Y_Loc = self.locationCanvas.create_text(
+            40, 40, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
+
 def changeSpeed(obj):
     for i in range(0,80):
         updateSpeed(obj,i)
@@ -192,7 +216,6 @@ def colorPicker(charge):
         return "#AAB900"
     else:
         return "#71B400"
-    
 def change(obj):
     time.sleep(0.5)
     changeSignals(obj,[3,46,0,1,1,55])
@@ -206,14 +229,12 @@ def change(obj):
     changeSignals(obj, [99,99,1, 1, 1,45])
     time.sleep(0.5)
     changeSignals(obj, [0,0,0,0,0,0])
-
 def changeSignals(obj,signals):
     changeElectroSignal(obj.signals.electroSignals, signals[0:2])
     changeEngineSignal(obj.signals.engineSignal,signals[2])
     changeDirectionSignal(obj.signals.directionSignals, signals[3:5])
     changeThermoSignal(obj.signals.thermoSignal, signals[5])
     obj.window.update()
-
 def changeElectroSignal(obj, signals):
     obj.current.currentCanvas.delete(obj.current.currentTxt)
     obj.voltage.voltageCanvas.delete(obj.voltage.voltageTxt)
@@ -238,10 +259,22 @@ def changeThermoSignal(obj,signal):
     obj.thermoCanvas.delete(obj.thermoTxt)
     obj.thermoTxt = obj.thermoCanvas.create_text(
         20, 50, fill="black", text=str(signal), font=('Helvetica 15 bold'))
-        
+def openMap(obj):
+    t1=th.Thread(target=openMap2(obj))
+    t1.start()
+    t1.join()
+def openMap2(obj):
+    mapLoc = folium.Map(location=obj.location,
+                        tiles="OpenStreetMap", zoom_start=15)
+    folium.Marker(location=obj.location).add_to(mapLoc)
+    app = QApplication(sys.argv)
+    web = QWebEngineView()
+    web.setHtml(mapLoc.get_root().render())
+    web.show()
+    sys.exit(app.exec_())
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
 app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
-
+app.button.bind("<Button-1>", lambda event, obj=app: openMap(obj.location))
 app.window.mainloop()
