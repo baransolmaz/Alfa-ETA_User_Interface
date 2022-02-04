@@ -16,40 +16,84 @@ class App:
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
         self.mainBattery = Battery(self,0,525)
-        x = 130 ; y = 80
-        self.allBatteries = [Battery(self, (y*j)+5, (x*i)+5)  for j in range(8) for i in range(4)]
-        
-        '''self.signals=Signals(self)  '''
+        x = 80 ; y = 130
+        self.allBatteries = [[Battery(self, (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
+        self.signals=Signals(self)
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
         self.allSignals=[0,0,0,0,0,0]#Current,Voltage,Engine,Left,Right,Tempereture
-        self.rightSignal = [PhotoImage(file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
-        self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
-        self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
         self.thermometer = [PhotoImage(file='Images/thermometer_ok.png'),PhotoImage(file='Images/thermometer_bad.png')]
-        self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
-        self.signalFrame = Frame(
-            obj.window, height=135, width=800, background="white", highlightthickness=5)
-        self.signalFrame.pack(side=BOTTOM)
-        self.currentLabel = Label(
-            self.signalFrame, image=self.electroSignal[0], bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-        self.currentLabel.pack(side=LEFT)
-        self.voltageLabel = Label(
-            self.signalFrame, image=self.electroSignal[1], bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-        self.voltageLabel.pack(side=LEFT)
-        self.engineLabel = Label(
-            self.signalFrame, image=self.engineSignal[0], bg="white")
-        self.engineLabel.pack(side=LEFT)
-        self.leftLabel = Label(
-            self.signalFrame, image=self.leftSignal[0], bg="white")
-        self.leftLabel.pack(side=LEFT)
-        self.rightLabel = Label(
-            self.signalFrame, image=self.rightSignal[0], bg="white")
-        self.rightLabel.pack(side=LEFT)
-        self.thermoLabel = Label(
-            self.signalFrame, image=self.thermometer[0],bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-        self.thermoLabel.pack(side=LEFT)
+        
+        self.engineSignal = self.EngineSignal(obj)
+        self.electroSignals = self.ElectroSignals(obj)
+        self.directionSignals=self.DirectionSignals(obj)
+        self.thermoSignal=self.ThermoSignal(obj)
+        
+    class EngineSignal(object):
+        def __init__(self, obj):
+            self.engineImage = [PhotoImage(
+                file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
+            self.engineCanvas = Canvas(
+                obj.window, height=60, width=40, background="black", highlightthickness=1)
+            self.engineCanvas.create_image(
+                40, 40, image=self.engineImage[0], anchor=SE)
+            self.engineCanvas.place(x=100, rely=1, anchor=S)
+    class ElectroSignals(object):
+        def __init__(self, obj):
+            self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
+            self.current = self.Current(obj, self.electroSignal[0])
+            self.voltage = self.Voltage(obj, self.electroSignal[1])
+        class Current(object):
+            def __init__(self, obj, image):
+                self.currentCanvas = Canvas(
+                    obj.window, height=60, width=40, background="red", highlightthickness=1)
+                self.currentCanvas.create_image(
+                    40, 40, image=image, anchor=SE)
+                self.currentCanvas.place(x=150, rely=1, anchor=S)
+                self.currentTxt = self.currentCanvas.create_text(
+                    20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+        class Voltage(object):
+            def __init__(self,obj,image):
+                self.voltageCanvas = Canvas(
+                        obj.window, height=60, width=40, background="yellow", highlightthickness=1)
+                self.voltageCanvas.create_image(
+                    40, 40, image=image, anchor=SE)
+                self.voltageCanvas.place(x=200, rely=1, anchor=S)  
+                self.voltageTxt = self.voltageCanvas.create_text(
+                    20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+    class DirectionSignals(object):
+        def __init__(self, obj):
+            self.leftsignal = self.LeftSignal(obj)
+            self.rightsignal = self.RightSignal(obj)
+        class LeftSignal(object):
+            def __init__(self, obj):
+                self.leftSignalImage = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
+                self.leftCanvas = Canvas(
+                    obj.window, height=60, width=40, background="red", highlightthickness=1)
+                self.leftCanvas.create_image(
+                    40, 40, image=self.leftSignalImage[0], anchor=SE)
+                self.leftCanvas.place(x=250, rely=1, anchor=S)
+        class RightSignal(object):
+            def __init__(self, obj):
+                self.rightSignalImage = [PhotoImage(
+                    file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
+                self.rightCanvas = Canvas(
+                    obj.window, height=60, width=40, background="yellow", highlightthickness=1)
+                self.rightCanvas.create_image(
+                    40, 40, image=self.rightSignalImage[0], anchor=SE)
+                self.rightCanvas.place(x=300, rely=1, anchor=S)
+    class ThermoSignal(object):
+        def __init__(self, obj):
+            self.thermometer = [PhotoImage(
+                file='Images/thermometer_ok.png'), PhotoImage(file='Images/thermometer_bad.png')]
+            self.thermoCanvas = Canvas(
+                obj.window, height=60, width=40, background="white", highlightthickness=1)
+            self.thermoCanvas.create_image(
+                40, 40, image=self.thermometer[0], anchor=SE)
+            self.thermoCanvas.place(x=350, rely=1, anchor=S)
+            self.thermoTxt = self.thermoCanvas.create_text(
+                20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -84,7 +128,6 @@ class Battery:
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
         self.charge = 0
-
 def changeSpeed(obj):
     for i in range(0,80):
         updateSpeed(obj,i)
@@ -96,16 +139,16 @@ def changeSpeed(obj):
         updateSpeed(obj, i)
 def changeBattery(obj):
     for i in range(0, 80):
-        updateBattery(obj.mainBattery, i)
+        updateBattery(obj.allBatteries[0][5], i)
         obj.window.update()
     for i in range(80, 40, -1):
-        updateBattery(obj.mainBattery, i)
+        updateBattery(obj.allBatteries[0][5], i)
         obj.window.update()
     for i in range(40, 100):
-        updateBattery(obj.mainBattery, i)
+        updateBattery(obj.allBatteries[0][5], i)
         obj.window.update()
     for i in range(100, 0, -1):
-        updateBattery(obj.mainBattery, i)
+        updateBattery(obj.allBatteries[0][5], i)
         obj.window.update()
 def updateSpeed(obj, speed=0):
     if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
@@ -140,7 +183,6 @@ def updateBattery(obj, charge=0):
         obj.charge = charge
         obj.batteryTxt = obj.batteryCanvas.create_text(
             37.5, 110, fill="black", text=str(obj.charge), font=('Helvetica 16 bold'))
-
 def colorPicker(charge):
     if charge < 20:
         return "#A10000"
