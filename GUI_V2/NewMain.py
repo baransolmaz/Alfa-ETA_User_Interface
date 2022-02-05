@@ -24,8 +24,6 @@ class App:
         self.allBatteries = [[Battery(self, (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
         self.signals=Signals(self)
         self.location=Location(self)
-        self.button = Button(self.window, text='Show On Map !', bd='1')
-        self.button.place(x=400, y=600)
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
@@ -135,7 +133,7 @@ class Battery:
         self.charge = 0
 class Location:
     def __init__(self,obj):
-        self.location = [40.901641, 29.225841]  # x,y
+        self.location = [40.9016, 29.2258]  # x,y
         self.locationCanvas = Canvas(obj.window, height=50, width=200,
                                      background="white", highlightthickness=1)
         self.locationCanvas.place(x=400,y=550)
@@ -147,7 +145,36 @@ class Location:
             40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'),anchor=W)
         self._Y_Loc = self.locationCanvas.create_text(
             40, 40, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
+        self.button = Button(obj.window, text='Show On Map !', bd='1', command=lambda:self.updateLoc(obj))
+        self.button.place(x=400, y=600)
+        self.imageCanvas = Canvas(obj.window, height=200, width=200,
+                                     background="red", highlightthickness=1)
+        self.imag = PhotoImage(file='GUI_V2/Map/ss.png')
+        self.image = self.imageCanvas.create_image(
+            0, 0, image=self.imag, anchor=NW)
+        self.imageCanvas.place(x=650, y=0)
+    def updateLoc(self,obj):
+        mapLoc = folium.Map(location=self.location,
+                                tiles="OpenStreetMap", zoom_start=15)
+        folium.Marker(location=self.location).add_to(mapLoc)
+        mapLoc.save("GUI_V2/Map/map.html")
+        driver = webdriver.Chrome()
+        driver.set_window_size(100, 400)  # choose a resolution
+        driver.get("file:///home/baran/Desktop/GUI/GUI_V2/Map/map.html")
+        time.sleep(5)
+        # You may need to add time.sleep(seconds) here
+        driver.save_screenshot('GUI_V2/Map/ss.png')
+        driver.close()
+        time.sleep(2)
+        self.imag = PhotoImage(file='GUI_V2/Map/ss.png')
 
+        self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
+        self.imageCanvas.pack()
+        self.imageCanvas.place(x=650, y=0)
+        obj.window.update()
+        
+        
+        
 def changeSpeed(obj):
     for i in range(0,80):
         updateSpeed(obj,i)
@@ -257,29 +284,17 @@ def changeThermoSignal(obj,signal):
     obj.thermoCanvas.delete(obj.thermoTxt)
     obj.thermoTxt = obj.thermoCanvas.create_text(
         20, 50, fill="black", text=str(signal), font=('Helvetica 15 bold'))
-def openMap(obj):
-    ''' t1=th.Thread(target=openMap2,args=(obj,))
+''' def openMap(obj):
+    t1=th.Thread(target=openMap2,args=(obj,))
     t1.start()
-    t1.join() '''
+    t1.join() 
     p1 = multi.Process(target=openMap2,args=(obj,))
     p1.start()
-    p1.join()
-def openMap2(obj):
-    mapLoc = folium.Map(location=obj.location,
-                        tiles="OpenStreetMap", zoom_start=15)
-    folium.Marker(location=obj.location).add_to(mapLoc)
-    mapLoc.save("GUI_V2/Map/map.html")
-    driver = webdriver.Chrome()
-    driver.set_window_size(300, 600)  # choose a resolution
-    driver.get("file:///home/baran/Desktop/GUI/GUI_V2/Map/map.html")
-    # You may need to add time.sleep(seconds) here
-    driver.save_screenshot('GUI_V2/Map/screenshot.png')
-    driver.close()
-
+    p1.join() '''
     
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
 app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
-app.button.bind("<Button-1>", lambda event, obj=app: openMap(obj.location))
+''' app.button.bind("<Button-1>", lambda event, obj=app: openMap(obj.location)) '''
 app.window.mainloop()
