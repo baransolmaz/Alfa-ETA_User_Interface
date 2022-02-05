@@ -1,12 +1,10 @@
-import sys
 import time
 from tkinter import *
 import math
-from PyQt5.QtCore import *
-from PyQt5.QtWebEngineWidgets import *
-from PyQt5.QtWidgets import QApplication
 import folium
 import threading as th
+import multiprocessing as multi
+from selenium import webdriver
 class App:
     def __init__(self):
         self.window = Tk()
@@ -26,7 +24,7 @@ class App:
         self.allBatteries = [[Battery(self, (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
         self.signals=Signals(self)
         self.location=Location(self)
-        self.button = Button(self.window, text='Open Map !', bd='1')
+        self.button = Button(self.window, text='Show On Map !', bd='1')
         self.button.place(x=400, y=600)
 class Signals:
     def __init__(self, obj):
@@ -260,18 +258,25 @@ def changeThermoSignal(obj,signal):
     obj.thermoTxt = obj.thermoCanvas.create_text(
         20, 50, fill="black", text=str(signal), font=('Helvetica 15 bold'))
 def openMap(obj):
-    t1=th.Thread(target=openMap2(obj))
+    ''' t1=th.Thread(target=openMap2,args=(obj,))
     t1.start()
-    t1.join()
+    t1.join() '''
+    p1 = multi.Process(target=openMap2,args=(obj,))
+    p1.start()
+    p1.join()
 def openMap2(obj):
     mapLoc = folium.Map(location=obj.location,
                         tiles="OpenStreetMap", zoom_start=15)
     folium.Marker(location=obj.location).add_to(mapLoc)
-    app = QApplication(sys.argv)
-    web = QWebEngineView()
-    web.setHtml(mapLoc.get_root().render())
-    web.show()
-    sys.exit(app.exec_())
+    mapLoc.save("GUI_V2/Map/map.html")
+    driver = webdriver.Chrome()
+    driver.set_window_size(300, 600)  # choose a resolution
+    driver.get("file:///home/baran/Desktop/GUI/GUI_V2/Map/map.html")
+    # You may need to add time.sleep(seconds) here
+    driver.save_screenshot('GUI_V2/Map/screenshot.png')
+    driver.close()
+
+    
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
