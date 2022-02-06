@@ -149,12 +149,10 @@ class Location:
         self.button.place(x=400, y=600)
         self.imageCanvas = Canvas(obj.window, height=300, width=300,
                                      background="red", highlightthickness=1)
-        self.imag = PhotoImage(file='GUI_V2/Map/ss.png')
-        #self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
         self.imageCanvas.place(x=650, y=0)
     def updateLoc(self,obj):
         mapLoc = folium.Map(location=self.location,
-                                tiles="OpenStreetMap", zoom_start=15)
+                            tiles="OpenStreetMap", zoom_start=15, zoom_control=False)
         folium.Marker(location=self.location).add_to(mapLoc)
         mapLoc.save("GUI_V2/Map/map.html")
         ''' p1 = multi.Process(target=self.savePNG)
@@ -174,14 +172,23 @@ class Location:
         opt = webdriver.ChromeOptions()
         opt.add_argument("--headless")
         driver = webdriver.Chrome(options=opt)
-        driver.set_window_size(300,300)  # choose a resolution
+        driver.set_window_size(320,320)  # choose a resolution
         driver.get("file:///home/baran/Desktop/GUI/GUI_V2/Map/map.html")
-        time.sleep(3)
+        time.sleep(2)
         # You may need to add time.sleep(seconds) here
         driver.save_screenshot('GUI_V2/Map/ss.png')
         driver.close()
-        time.sleep(2)
-            
+        time.sleep(1)
+    def changeLoc(self,obj,locs):
+        self.location =locs
+        self.locationCanvas.delete(self._X_Loc)
+        self.locationCanvas.delete(self._Y_Loc)
+        self._X_Loc = self.locationCanvas.create_text(
+            40, 15, fill="black", text=str(locs[0]), font=('Helvetica 14 roman'), anchor=W)
+        self._Y_Loc = self.locationCanvas.create_text(
+            40, 40, fill="black", text=str(locs[1]), font=('Helvetica 14 roman'), anchor=W)
+
+        obj.window.update()
 def changeSpeed(obj):
     for i in range(0,80):
         updateSpeed(obj,i)
@@ -204,6 +211,8 @@ def changeBattery(obj):
     for i in range(100, 0, -1):
         updateBattery(obj.allBatteries[0][5], i)
         obj.window.update()
+def changeLoc(obj):
+    obj.location.changeLoc(obj, [40.1234, 29.1234])
 def updateSpeed(obj, speed=0):
     if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
         obj.speedometer.angle = 90 + 1.8*speed
@@ -296,4 +305,5 @@ app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
 app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
+app.window.bind("<Down>",lambda event, obj=app: changeLoc(obj))
 app.window.mainloop()
