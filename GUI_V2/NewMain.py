@@ -212,7 +212,7 @@ def changeBattery(obj):
         updateBattery(obj.allBatteries[0][5], i)
         obj.window.update()
 def changeLoc(obj):
-    obj.location.changeLoc(obj, [40.1234, 29.1234])
+    obj.location.changeLoc(obj, [40.807712, 29.355991])
 def updateSpeed(obj, speed=0):
     if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
         obj.speedometer.angle = 90 + 1.8*speed
