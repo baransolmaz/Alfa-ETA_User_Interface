@@ -157,21 +157,24 @@ class Location:
                                 tiles="OpenStreetMap", zoom_start=15)
         folium.Marker(location=self.location).add_to(mapLoc)
         mapLoc.save("GUI_V2/Map/map.html")
-        p1 = multi.Process(target=self.savePNG)
+        ''' p1 = multi.Process(target=self.savePNG)
         p1.start()
         p1.join()
-        ''' t1 = th.Thread(target=self.savePNG,args=())
+        t1 = th.Thread(target=self.savePNG)
         t1.start()
-        t1.join() '''
+        t1.join()  '''
+        self.savePNG()
         self.imag = PhotoImage(file='GUI_V2/Map/ss.png')
 
         self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
         self.imageCanvas.pack()
         self.imageCanvas.place(x=650, y=0)
         obj.window.update()
-    def savePNG():
-        driver = webdriver.Chrome()
-        driver.set_window_size(400,400)  # choose a resolution
+    def savePNG(self):
+        opt = webdriver.ChromeOptions()
+        opt.add_argument("--headless")
+        driver = webdriver.Chrome(options=opt)
+        driver.set_window_size(300,300)  # choose a resolution
         driver.get("file:///home/baran/Desktop/GUI/GUI_V2/Map/map.html")
         time.sleep(3)
         # You may need to add time.sleep(seconds) here
