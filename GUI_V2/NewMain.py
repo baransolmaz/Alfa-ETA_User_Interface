@@ -171,14 +171,15 @@ class Location:
     def savePNG(self):
         opt = webdriver.ChromeOptions()
         opt.add_argument("--headless")
+        opt.add_argument("--offline")
         driver = webdriver.Chrome(options=opt)
         driver.set_window_size(320,320)  # choose a resolution
         driver.get("file:///home/baran/Desktop/GUI/GUI_V2/Map/map.html")
-        time.sleep(2)
+        time.sleep(1)
         # You may need to add time.sleep(seconds) here
         driver.save_screenshot('GUI_V2/Map/ss.png')
         driver.close()
-        time.sleep(1)
+
     def changeLoc(self,obj,locs):
         self.location =locs
         self.locationCanvas.delete(self._X_Loc)
@@ -257,7 +258,7 @@ def colorPicker(charge):
         return "#AAB900"
     else:
         return "#71B400"
-def change(obj):
+def changeSig(obj):
     time.sleep(0.5)
     changeSignals(obj,[3,46,0,1,1,55])
     time.sleep(0.5)
@@ -304,6 +305,6 @@ def changeThermoSignal(obj,signal):
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
-app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
+app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
 app.window.bind("<Down>",lambda event, obj=app: changeLoc(obj))
 app.window.mainloop()
