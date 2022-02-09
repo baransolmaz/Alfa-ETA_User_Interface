@@ -19,9 +19,9 @@ class App:
         photo = PhotoImage(file="Images/logo.png")
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
-        self.mainBattery = Battery(self,0,525)
+        self.mainBattery = Battery(self,"Main",0,525)
         x = 80 ; y = 130
-        self.allBatteries = [[Battery(self, (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
+        self.allBatteries = [[Battery(self,(i*8+j), (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
         self.signals=Signals(self)
         self.location=Location(self)
 class Signals:
@@ -116,7 +116,7 @@ class Speedometer:
         self.speedTxt = self.speedCanvas.create_text(
             100, 65, fill="black", text="0", font=('Helvetica 20 bold'))
 class Battery:
-    def __init__(self, obj,_x_=100,_y_=100):
+    def __init__(self, obj,name,_x_=100,_y_=100):
         #Battery Canvas
         self.batteryCanvas = Canvas(obj.window, height=125, width=74,
                                     background="white", highlightthickness=1)
@@ -128,6 +128,8 @@ class Battery:
         self.batteryImage = self.batteryCanvas.create_image(
             0, 2, image=self.batteryImages[0], anchor=NW)
         self.batteryCanvas.place(x=_x_, y=_y_)
+        self.batteryName = self.batteryCanvas.create_text(
+            37.5, 35, fill="black", text=name, font=('Helvetica 14 roman'))
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
         self.charge = 0
@@ -179,7 +181,6 @@ class Location:
         # You may need to add time.sleep(seconds) here
         driver.save_screenshot('GUI_V2/Map/ss.png')
         driver.close()
-
     def changeLoc(self,obj,locs):
         self.location =locs
         self.locationCanvas.delete(self._X_Loc)
