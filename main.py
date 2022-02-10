@@ -1,52 +1,103 @@
 import time
 from tkinter import *
 import math
+import folium
+import threading as th
+import multiprocessing as multi
+from selenium import webdriver
+import os
+
 class App:
     def __init__(self):
         self.window = Tk()
         self.screen_width = self.window.winfo_screenwidth()
         self.screen_height = self.window.winfo_screenheight()
-        self.window.geometry(str(self.screen_width)+"x"+str(self.screen_height))  # Screen Size
-        self.window.minsize(800,600)
-        self.window.title("ALFA-ETA")  # Pencere ismi
+        self.window.geometry("1000x650")  # Screen Size
+        self.window.resizable(0, 0)
+        self.window.title("ALFA-ETA") # Pencere ismi
         self.window.iconname("ALFA-ETA")
         self.window.config(background="white")
-        #app icon
-        photo = PhotoImage(file="Images/logo.png")
+        photo = PhotoImage(file="Images/logo.png") #app icon
         self.window.iconphoto("false", photo)
         self.speedometer = Speedometer(self)
-        self.battery = Battery(self)
-        self.signals=Signals(self) 
+        self.mainBattery = Battery(self,"Main",0,525)
+        x = 80 ; y = 130
+        self.allBatteries = [[Battery(self,(i*8+j), (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
+        self.signals=Signals(self)
+        self.location=Location(self)
 class Signals:
     def __init__(self, obj):
         #Signals Canvas
-        self.allSignals=[0,0,0,0,0,0]#Current,Voltage,Engine,Left,Right,Tempereture
-        self.rightSignal = [PhotoImage(file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
-        self.leftSignal = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
-        self.engineSignal = [PhotoImage(file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
-        self.thermometer = [PhotoImage(file='Images/thermometer_ok.png'),PhotoImage(file='Images/thermometer_bad.png')]
-        self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
-        self.signalFrame = Frame(
-            obj.window, height=135, width=800, background="white", highlightthickness=5)
-        self.signalFrame.pack(side=BOTTOM)
-        self.currentLabel = Label(
-            self.signalFrame, image=self.electroSignal[0], bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-        self.currentLabel.pack(side=LEFT)
-        self.voltageLabel = Label(
-            self.signalFrame, image=self.electroSignal[1], bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-        self.voltageLabel.pack(side=LEFT)
-        self.engineLabel = Label(
-            self.signalFrame, image=self.engineSignal[0], bg="white")
-        self.engineLabel.pack(side=LEFT)
-        self.leftLabel = Label(
-            self.signalFrame, image=self.leftSignal[0], bg="white")
-        self.leftLabel.pack(side=LEFT)
-        self.rightLabel = Label(
-            self.signalFrame, image=self.rightSignal[0], bg="white")
-        self.rightLabel.pack(side=LEFT)
-        self.thermoLabel = Label(
-            self.signalFrame, image=self.thermometer[0],bg="white", text="0", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-        self.thermoLabel.pack(side=LEFT)
+        self.allSignals=[0,0,0,0,0,0]#Current,Voltage,Engine,Left,Right,Tempereture        
+        self.electroSignals = self.ElectroSignals(obj)
+        self.engineSignal = self.EngineSignal(obj)
+        self.directionSignals=self.DirectionSignals(obj)
+        self.thermoSignal=self.ThermoSignal(obj)
+        
+    class EngineSignal(object):
+        def __init__(self, obj):
+            self.engineImage = [PhotoImage(
+                file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
+            self.engineCanvas = Canvas(
+                obj.window, height=60, width=40, background="black", highlightthickness=1)
+            self.engineCanvas.create_image(
+                20, 20, image=self.engineImage[0], anchor=CENTER)
+            self.engineCanvas.place(x=200, rely=1, anchor=S)
+    class ElectroSignals(object):
+        def __init__(self, obj):
+            self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
+            self.current = self.Current(obj, self.electroSignal[0])
+            self.voltage = self.Voltage(obj, self.electroSignal[1])
+        class Current(object):
+            def __init__(self, obj, image):
+                self.currentCanvas = Canvas(
+                    obj.window, height=60, width=40, background="red", highlightthickness=1)
+                self.currentCanvas.create_image(
+                    20, 20, image=image, anchor=CENTER)
+                self.currentCanvas.place(x=100, rely=1, anchor=S)
+                self.currentTxt = self.currentCanvas.create_text(
+                    20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+        class Voltage(object):
+            def __init__(self,obj,image):
+                self.voltageCanvas = Canvas(
+                        obj.window, height=60, width=40, background="yellow", highlightthickness=1)
+                self.voltageCanvas.create_image(
+                    20, 20, image=image, anchor=CENTER)
+                self.voltageCanvas.place(x=150, rely=1, anchor=S)  
+                self.voltageTxt = self.voltageCanvas.create_text(
+                    20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+    class DirectionSignals(object):
+        def __init__(self, obj):
+            self.leftsignal = self.LeftSignal(obj)
+            self.rightsignal = self.RightSignal(obj)
+        class LeftSignal(object):
+            def __init__(self, obj):
+                self.leftSignalImage = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
+                self.leftCanvas = Canvas(
+                    obj.window, height=60, width=40, background="red", highlightthickness=1)
+                self.leftCanvas.create_image(
+                    20, 20, image=self.leftSignalImage[0], anchor=CENTER)
+                self.leftCanvas.place(x=250, rely=1, anchor=S)
+        class RightSignal(object):
+            def __init__(self, obj):
+                self.rightSignalImage = [PhotoImage(
+                    file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
+                self.rightCanvas = Canvas(
+                    obj.window, height=60, width=40, background="yellow", highlightthickness=1)
+                self.rightCanvas.create_image(
+                    20, 20, image=self.rightSignalImage[0], anchor=CENTER)
+                self.rightCanvas.place(x=300, rely=1, anchor=S)
+    class ThermoSignal(object):
+        def __init__(self, obj):
+            self.thermometer = [PhotoImage(
+                file='Images/thermometer_ok.png'), PhotoImage(file='Images/thermometer_bad.png')]
+            self.thermoCanvas = Canvas(
+                obj.window, height=60, width=40, background="white", highlightthickness=1)
+            self.thermoCanvas.create_image(
+                20, 20, image=self.thermometer[0], anchor=CENTER)
+            self.thermoCanvas.place(x=350, rely=1, anchor=S)
+            self.thermoTxt = self.thermoCanvas.create_text(
+                20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -66,7 +117,7 @@ class Speedometer:
         self.speedTxt = self.speedCanvas.create_text(
             100, 65, fill="black", text="0", font=('Helvetica 20 bold'))
 class Battery:
-    def __init__(self, obj):
+    def __init__(self, obj,name,_x_=100,_y_=100):
         #Battery Canvas
         self.batteryCanvas = Canvas(obj.window, height=125, width=74,
                                     background="white", highlightthickness=1)
@@ -77,17 +128,100 @@ class Battery:
             69, 122, 5, 122, fill="#A10000")
         self.batteryImage = self.batteryCanvas.create_image(
             0, 2, image=self.batteryImages[0], anchor=NW)
-        self.batteryCanvas.place(relx=0.0, rely=1.0, anchor=SW)
+        self.batteryCanvas.place(x=_x_, y=_y_)
+        self.batteryName = self.batteryCanvas.create_text(
+            37.5, 35, fill="black", text=name, font=('Helvetica 14 roman'))
         self.batteryTxt = self.batteryCanvas.create_text(
             37.5, 110, fill="black", text="0", font=('Helvetica 16 bold'))
         self.charge = 0
-        self.allBatteries = Toplevel()
-        self.allBatteries.destroy()
+class Location:
+    def __init__(self,obj):
+        self.location = [40.9016, 29.2258]  # x,y
+        self.locationCanvas = Canvas(obj.window, height=50, width=200,
+                                     background="white", highlightthickness=1)
+        self.locationCanvas.place(x=400,y=550)
+        self._X_ = self.locationCanvas.create_text(
+            20,15, fill="black", text="X: ", font=('Helvetica 16 bold'))
+        self._Y_ = self.locationCanvas.create_text(
+            20,40, fill="black", text="Y: ", font=('Helvetica 16 bold'))
+        self._X_Loc = self.locationCanvas.create_text(
+            40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'),anchor=W)
+        self._Y_Loc = self.locationCanvas.create_text(
+            40, 40, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
+        self.button = Button(obj.window, text='Show On Map !', bd='1', command=lambda:self.updateLoc(obj))
+        self.button.place(x=400, y=600)
+        self.imageCanvas = Canvas(obj.window, height=300, width=300,
+                                     background="red", highlightthickness=1)
+        self.imageCanvas.place(x=650, y=0)
+    def updateLoc(self,obj):
+        mapLoc = folium.Map(location=self.location,
+                            tiles="OpenStreetMap", zoom_start=15, zoom_control=False)
+        folium.Marker(location=self.location).add_to(mapLoc)
+        directory = os.path.dirname(os.path.abspath(__file__))
+        mapLoc.save(directory+"/Map/map.html")
+        ''' p1 = multi.Process(target=self.savePNG)
+        p1.start()
+        p1.join()
+        t1 = th.Thread(target=self.savePNG)
+        t1.start()
+        t1.join()  '''
+        self.savePNG()
+        self.imag = PhotoImage(file=(directory+'/Map/ss.png'))
 
-def speedUP(obj,speed=0):
-    if obj.speedometer.angle < 270:
-        #angle =90 + 1.8*speed
-        obj.speedometer.angle += 1.8
+        self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
+        self.imageCanvas.pack()
+        self.imageCanvas.place(x=650, y=0)
+        obj.window.update()
+    def savePNG(self):
+        opt = webdriver.ChromeOptions()
+        opt.add_argument("--headless")
+        opt.add_argument("--offline")
+        driver = webdriver.Chrome(options=opt)
+        driver.set_window_size(320,320)  # choose a resolution
+        directory = os.path.dirname(os.path.abspath(__file__))
+        driver.get("file://"+directory+"/Map/map.html")
+        time.sleep(1)
+        # You may need to add time.sleep(seconds) here
+        driver.save_screenshot(directory+'/Map/ss.png')
+        driver.close()
+    def changeLoc(self,obj,locs):
+        self.location =locs
+        self.locationCanvas.delete(self._X_Loc)
+        self.locationCanvas.delete(self._Y_Loc)
+        self._X_Loc = self.locationCanvas.create_text(
+            40, 15, fill="black", text=str(locs[0]), font=('Helvetica 14 roman'), anchor=W)
+        self._Y_Loc = self.locationCanvas.create_text(
+            40, 40, fill="black", text=str(locs[1]), font=('Helvetica 14 roman'), anchor=W)
+
+        obj.window.update()
+def changeSpeed(obj):
+    for i in range(0,80):
+        updateSpeed(obj,i)
+    for i in range(80,40,-1):
+        updateSpeed(obj, i)
+    for i in range(40,100):
+        updateSpeed(obj, i)
+    for i in range(100,0, -1):
+        updateSpeed(obj, i)
+def changeBattery(obj):
+    for i in range(0, 80):
+        updateBattery(obj.allBatteries[0][5], i)
+        obj.window.update()
+    for i in range(80, 40, -1):
+        updateBattery(obj.allBatteries[0][5], i)
+        obj.window.update()
+    for i in range(40, 100):
+        updateBattery(obj.allBatteries[0][5], i)
+        obj.window.update()
+    for i in range(100, 0, -1):
+        updateBattery(obj.allBatteries[0][5], i)
+        obj.window.update()
+def changeLoc(obj):
+    obj.location.changeLoc(obj, [40.807712, 29.355991])
+def updateSpeed(obj, speed=0):
+    if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
+        obj.speedometer.angle = 90 + 1.8*speed
+        #obj.speedometer.angle += 1.8
         x = 100 - 100*math.sin(math.radians(obj.speedometer.angle))
         y = 100 + 100*math.cos(math.radians(obj.speedometer.angle))
         obj.speedometer.speedCanvas.delete(obj.speedometer.speedTxt)
@@ -98,191 +232,83 @@ def speedUP(obj,speed=0):
             100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
 
     obj.window.update()
-def speedDOWN(obj, speed=0):
-    if obj.speedometer.angle > 90:
-        #angle =90 + 1.8*speed
-        obj.speedometer.angle -= 1.8
-        x = 100 - 100*math.sin(math.radians(obj.speedometer.angle))
-        y = 100 + 100*math.cos(math.radians(obj.speedometer.angle))
-        global speedArrow, speedTxt
-        obj.speedometer.speedCanvas.delete(obj.speedometer.speedTxt)
-        obj.speedometer.speedCanvas.delete(obj.speedometer.speedArrow)
-        obj.speedometer.speedTxt = obj.speedometer.speedCanvas.create_text(100, 65, fill="black", text=str(
-            int((obj.speedometer.angle-90)/1.8)), font=('Helvetica 20 bold'))
-        obj.speedometer.speedArrow = obj.speedometer.speedCanvas.create_line(
-            100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
-
-    obj.window.update()
+def updateBattery(obj, charge=0):
+    if (obj.charge > 0) or (obj.charge < 100):
+        obj.batteryCanvas.delete(obj.batteryCharge)
+        obj.batteryCanvas.delete(obj.batteryTxt)
+        obj.batteryCanvas.delete(obj.batteryImage)
+        
+        x = 122 - int(charge*1.04)
+        color = colorPicker(charge)
+        obj.batteryCharge = obj.batteryCanvas.create_rectangle(
+            69, 122, 5, x, fill=color)
+        if charge >= obj.charge:
+            obj.batteryImage = obj.batteryCanvas.create_image(
+                0, 2, image=obj.batteryImages[1], anchor=NW)
+        else:
+            obj.batteryImage = obj.batteryCanvas.create_image(
+                0, 2, image=obj.batteryImages[0], anchor=NW)
+        obj.charge = charge
+        obj.batteryTxt = obj.batteryCanvas.create_text(
+            37.5, 110, fill="black", text=str(obj.charge), font=('Helvetica 16 bold'))
 def colorPicker(charge):
     if charge < 20:
         return "#A10000"
+    elif charge < 40:
+        return "#C25F00"
+    elif charge < 60:
+        return "#E2BE00"
+    elif charge < 80:
+        return "#AAB900"
     else:
-        if charge < 40:
-            return "#C25F00"
-        else:
-            if charge < 60:
-                return "#E2BE00"
-            else:
-                if charge < 80:
-                    return "#AAB900"
-                else:
-                    return "#71B400"
-def batteryUP(obj,charge=0):
-    if obj.battery.charge < 100:
-        obj.battery.charge += 1
-        x = 122 - int(obj.battery.charge*1.04)
-        color = colorPicker(obj.battery.charge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryCharge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryTxt)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryImage)
-        obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
-            69, 122, 5, x, fill=color)
-        obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-            0, 2, image=obj.battery.batteryImages[1], anchor=NW)
-        obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
-            37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
-
-    obj.window.update()
-def batteryDOWN(obj,charge=0):
-    if obj.battery.charge > 0:
-        obj.battery.charge -= 1
-        x = 122 - int(obj.battery.charge*1.04)
-        color = colorPicker(obj.battery.charge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryCharge)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryTxt)
-        obj.battery.batteryCanvas.delete(obj.battery.batteryImage)
-        obj.battery.batteryCharge = obj.battery.batteryCanvas.create_rectangle(
-            69, 122, 5, x, fill=color)
-
-        obj.battery.batteryImage = obj.battery.batteryCanvas.create_image(
-            0, 2, image=obj.battery.batteryImages[0], anchor=NW)
-        obj.battery.batteryTxt = obj.battery.batteryCanvas.create_text(
-            37.5, 110, fill="black", text=str(obj.battery.charge), font=('Helvetica 16 bold'))
-
-    obj.window.update()
-    
-def showAllBatteries(obj):
-    if obj.allBatteries.winfo_exists():
-        obj.allBatteries.lift()
-    else:
-        obj.allBatteries = Toplevel()
-        obj.allBatteries.geometry("655x530")
-        obj.allBatteries.resizable(FALSE,FALSE)
-        obj.allBatteryCanvas = Canvas(obj.allBatteries, width=655, height=530,
-                               background="white", highlightthickness=1)
-        x=80
-        y=130
-        for i in range(0,8):
-            for j in range(0,4):
-                obj.allBatteryCanvas.create_image(
-                    (x*i)+10,(y*j)+10, image=obj.batteryImages[1], anchor=NW)
-        obj.allBatteryCanvas.pack()
-        obj.allBatteries.mainloop()
-
-def change(obj):
+        return "#71B400"
+def changeSig(obj):
     time.sleep(0.5)
     changeSignals(obj,[3,46,0,1,1,55])
-    obj.window.update()
     time.sleep(0.5)
     changeSignals(obj, [10,15,0, 0, 0,20])
-    obj.window.update()
     time.sleep(0.5)
     changeSignals(obj, [36,54,1, 0, 1,100])
-    obj.window.update()
     time.sleep(0.5)
     changeSignals(obj, [0,0,0, 1,0,9])
-    obj.window.update()
     time.sleep(0.5)
     changeSignals(obj, [99,99,1, 1, 1,45])
-    obj.window.update()
     time.sleep(0.5)
     changeSignals(obj, [0,0,0,0,0,0])
-    obj.window.update()
-
-def change_leftSignal(obj):
-    time.sleep(0.5)
-    changeSignals(obj, [0,0,0,1,0,0])
-    obj.window.update()
-    time.sleep(0.5)
-    obj.window.update()
-    changeSignals(obj, [0,0,0,0,0,0])
-    obj.window.update()
-    time.sleep(0.5)
-    changeSignals(obj, [0,0,0,1,0,0])
-    obj.window.update()
-    time.sleep(0.5)
-    changeSignals(obj, [0,0,0,0,0,0])
-    obj.window.update()
-    time.sleep(0.5)
-    changeSignals(obj, [0,0,0,1,0,0])
-    obj.window.update()
-    time.sleep(0.5)
-    changeSignals(obj, [0, 0, 0, 0, 0, 0])
-    obj.window.update()
-
 def changeSignals(obj,signals):
-    electroSignal(obj.signals,signals[0:2])
-    engineSignal(obj.signals,signals[2])
-    leftSignal(obj.signals, signals[3])
-    rightSignal(obj.signals, signals[4])
-    thermoSignal(obj.signals, signals[5])
-
-def electroSignal(obj, signal):
-    obj.currentLabel.destroy()
-    obj.voltageLabel.destroy()
-    obj.currentLabel = Label(
-        obj.signalFrame, image=obj.electroSignal[0], bg="white", text=str(signal[0])+" I", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-    obj.currentLabel.pack(side=LEFT)
-    obj.voltageLabel = Label(
-        obj.signalFrame, image=obj.electroSignal[1], bg="white", text=str(signal[1])+" V", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-    obj.voltageLabel.pack(side=LEFT)
-    
-def engineSignal(obj,signal):
-    obj.engineLabel.destroy()
-    if signal == 0:
-        obj.engineLabel = Label(
-            obj.signalFrame, image=obj.engineSignal[0], bg="white")
-    else:
-        obj.engineLabel = Label(
-            obj.signalFrame, image=obj.engineSignal[1], bg="white")
-    obj.engineLabel.pack(side=LEFT)
-
-def leftSignal(obj, signal):
-    obj.leftLabel.destroy()
-    if signal == 0:
-        obj.leftLabel = Label(
-            obj.signalFrame, image=obj.leftSignal[0], bg="white")
-    else:
-        obj.leftLabel = Label(
-            obj.signalFrame, image=obj.leftSignal[1], bg="white")
-    obj.leftLabel.pack(side=LEFT)
-    
-def rightSignal(obj, signal):
-    obj.rightLabel.destroy()
-    if signal == 0:
-        obj.rightLabel = Label(
-            obj.signalFrame, image=obj.rightSignal[0], bg="white")
-    else:
-        obj.rightLabel = Label(
-            obj.signalFrame, image=obj.rightSignal[1], bg="white")
-    obj.rightLabel.pack(side=LEFT)
-
-def thermoSignal(obj,signal):
-    obj.thermoLabel.destroy()
+    changeElectroSignal(obj.signals.electroSignals, signals[0:2])
+    changeEngineSignal(obj.signals.engineSignal,signals[2])
+    changeDirectionSignal(obj.signals.directionSignals, signals[3:5])
+    changeThermoSignal(obj.signals.thermoSignal, signals[5])
+    obj.window.update()
+def changeElectroSignal(obj, signals):
+    obj.current.currentCanvas.delete(obj.current.currentTxt)
+    obj.voltage.voltageCanvas.delete(obj.voltage.voltageTxt)
+    obj.current.currentTxt = obj.current.currentCanvas.create_text(
+        20, 50, fill="black", text=str(signals[0]), font=('Helvetica 15 bold'))
+    obj.voltage.voltageTxt = obj.voltage.voltageCanvas.create_text(
+        20, 50, fill="black", text=str(signals[1]), font=('Helvetica 15 bold'))
+def changeEngineSignal(obj, signal):
+    obj.engineCanvas.create_image(
+            20, 20, image=obj.engineImage[signal], anchor=CENTER)
+def changeDirectionSignal(obj, signals):
+    obj.leftsignal.leftCanvas.create_image(
+        20, 20, image=obj.leftsignal.leftSignalImage[signals[0]], anchor=CENTER)
+    obj.rightsignal.rightCanvas.create_image(
+        20, 20, image=obj.rightsignal.rightSignalImage[signals[1]], anchor=CENTER)
+def changeThermoSignal(obj,signal):
     img = obj.thermometer[0]
     if signal > 40:
         img = obj.thermometer[1]
-    obj.thermoLabel = Label(
-        obj.signalFrame, image=img, text=str(signal), bg="white", compound=TOP, fg="black", font=('Helvetica 16 bold'))
-    obj.thermoLabel.pack(side=LEFT)
-        
+    obj.thermoCanvas.create_image(
+        20, 20, image=img, anchor=CENTER)
+    obj.thermoCanvas.delete(obj.thermoTxt)
+    obj.thermoTxt = obj.thermoCanvas.create_text(
+        20, 50, fill="black", text=str(signal), font=('Helvetica 15 bold'))
+    
 app = App()
-app.window.bind("<Up>", lambda event, obj=app: speedUP(obj))
-app.window.bind("<Down>", lambda event, obj=app: speedDOWN(obj))
-app.window.bind("<Left>", lambda event, obj=app: batteryUP(obj))
-app.window.bind("<Right>", lambda event, obj=app: batteryDOWN(obj))
-app.battery.batteryCanvas.bind(
-    "<Button-1>", lambda event, obj=app.battery: showAllBatteries(obj))
-app.window.bind("<BackSpace>", lambda event, obj=app: change(obj))
-
+app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
+app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
+app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
+app.window.bind("<Down>",lambda event, obj=app: changeLoc(obj))
 app.window.mainloop()
