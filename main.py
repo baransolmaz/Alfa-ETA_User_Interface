@@ -39,33 +39,33 @@ class Signals:
             self.engineImage = [PhotoImage(
                 file='Images/engine_ok.png'), PhotoImage(file='Images/engine_bad.png')]
             self.engineCanvas = Canvas(
-                obj.window, height=60, width=40, background="black", highlightthickness=1)
+                obj.window, height=75, width=49, background="blue", highlightthickness=1)
             self.engineCanvas.create_image(
-                20, 20, image=self.engineImage[0], anchor=CENTER)
+                25, 25, image=self.engineImage[0], anchor=CENTER)
             self.engineCanvas.place(x=200, rely=1, anchor=S)
     class ElectroSignals(object):
         def __init__(self, obj):
-            self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
+            self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V2.png')]
             self.current = self.Current(obj, self.electroSignal[0])
             self.voltage = self.Voltage(obj, self.electroSignal[1])
         class Current(object):
             def __init__(self, obj, image):
                 self.currentCanvas = Canvas(
-                    obj.window, height=60, width=40, background="red", highlightthickness=1)
+                    obj.window, height=75, width=49, background="red", highlightthickness=1)
                 self.currentCanvas.create_image(
-                    20, 20, image=image, anchor=CENTER)
+                    25,25, image=image, anchor=CENTER)
                 self.currentCanvas.place(x=100, rely=1, anchor=S)
                 self.currentTxt = self.currentCanvas.create_text(
-                    20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+                    25, 65, fill="black", text="0", font=('Helvetica 16 bold'))
         class Voltage(object):
             def __init__(self,obj,image):
                 self.voltageCanvas = Canvas(
-                        obj.window, height=60, width=40, background="yellow", highlightthickness=1)
+                        obj.window, height=75, width=49, background="yellow", highlightthickness=1)
                 self.voltageCanvas.create_image(
-                    20, 20, image=image, anchor=CENTER)
+                    25, 25, image=image, anchor=CENTER)
                 self.voltageCanvas.place(x=150, rely=1, anchor=S)  
                 self.voltageTxt = self.voltageCanvas.create_text(
-                    20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+                    25, 65, fill="black", text="0", font=('Helvetica 16 bold'))
     class DirectionSignals(object):
         def __init__(self, obj):
             self.leftsignal = self.LeftSignal(obj)
@@ -74,30 +74,30 @@ class Signals:
             def __init__(self, obj):
                 self.leftSignalImage = [PhotoImage(file='Images/left_off.png'), PhotoImage(file='Images/left_on.png')]
                 self.leftCanvas = Canvas(
-                    obj.window, height=60, width=40, background="red", highlightthickness=1)
+                    obj.window, height=75, width=49, background="red", highlightthickness=1)
                 self.leftCanvas.create_image(
-                    20, 20, image=self.leftSignalImage[0], anchor=CENTER)
+                    25,25, image=self.leftSignalImage[0], anchor=CENTER)
                 self.leftCanvas.place(x=250, rely=1, anchor=S)
         class RightSignal(object):
             def __init__(self, obj):
                 self.rightSignalImage = [PhotoImage(
                     file='Images/right_off.png'), PhotoImage(file='Images/right_on.png')]
                 self.rightCanvas = Canvas(
-                    obj.window, height=60, width=40, background="yellow", highlightthickness=1)
+                    obj.window, height=75, width=49, background="yellow", highlightthickness=1)
                 self.rightCanvas.create_image(
-                    20, 20, image=self.rightSignalImage[0], anchor=CENTER)
+                    25,25, image=self.rightSignalImage[0], anchor=CENTER)
                 self.rightCanvas.place(x=300, rely=1, anchor=S)
     class ThermoSignal(object):
         def __init__(self, obj):
             self.thermometer = [PhotoImage(
                 file='Images/thermometer_ok.png'), PhotoImage(file='Images/thermometer_bad.png')]
             self.thermoCanvas = Canvas(
-                obj.window, height=60, width=40, background="white", highlightthickness=1)
+                obj.window, height=75, width=49, background="white", highlightthickness=1)
             self.thermoCanvas.create_image(
-                20, 20, image=self.thermometer[0], anchor=CENTER)
+                25,25, image=self.thermometer[0], anchor=CENTER)
             self.thermoCanvas.place(x=350, rely=1, anchor=S)
             self.thermoTxt = self.thermoCanvas.create_text(
-                20, 50, fill="black", text="0", font=('Helvetica 15 bold'))
+                25, 65, fill="black", text="0", font=('Helvetica 15 bold'))
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -285,26 +285,26 @@ def changeElectroSignal(obj, signals):
     obj.current.currentCanvas.delete(obj.current.currentTxt)
     obj.voltage.voltageCanvas.delete(obj.voltage.voltageTxt)
     obj.current.currentTxt = obj.current.currentCanvas.create_text(
-        20, 50, fill="black", text=str(signals[0]), font=('Helvetica 15 bold'))
+        25, 65, fill="black", text=str(signals[0]), font=('Helvetica 16 bold'))
     obj.voltage.voltageTxt = obj.voltage.voltageCanvas.create_text(
-        20, 50, fill="black", text=str(signals[1]), font=('Helvetica 15 bold'))
+        25, 65, fill="black", text=str(signals[1]), font=('Helvetica 16 bold'))
 def changeEngineSignal(obj, signal):
     obj.engineCanvas.create_image(
-            20, 20, image=obj.engineImage[signal], anchor=CENTER)
+            25,25, image=obj.engineImage[signal], anchor=CENTER)
 def changeDirectionSignal(obj, signals):
     obj.leftsignal.leftCanvas.create_image(
-        20, 20, image=obj.leftsignal.leftSignalImage[signals[0]], anchor=CENTER)
+        25,25, image=obj.leftsignal.leftSignalImage[signals[0]], anchor=CENTER)
     obj.rightsignal.rightCanvas.create_image(
-        20, 20, image=obj.rightsignal.rightSignalImage[signals[1]], anchor=CENTER)
+        25,25, image=obj.rightsignal.rightSignalImage[signals[1]], anchor=CENTER)
 def changeThermoSignal(obj,signal):
     img = obj.thermometer[0]
     if signal > 40:
         img = obj.thermometer[1]
     obj.thermoCanvas.create_image(
-        20, 20, image=img, anchor=CENTER)
+        25,25, image=img, anchor=CENTER)
     obj.thermoCanvas.delete(obj.thermoTxt)
     obj.thermoTxt = obj.thermoCanvas.create_text(
-        20, 50, fill="black", text=str(signal), font=('Helvetica 15 bold'))
+        25, 65, fill="black", text=str(signal), font=('Helvetica 16 bold'))
     
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
