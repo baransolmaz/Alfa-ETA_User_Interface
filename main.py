@@ -2,8 +2,6 @@ import time
 from tkinter import *
 import math
 import folium
-import threading as th
-import multiprocessing as multi
 from selenium import webdriver
 import os
 
@@ -94,10 +92,10 @@ class Signals:
             self.thermoCanvas = Canvas(
                 obj.window, height=75, width=49, background="white", highlightthickness=1)
             self.thermoCanvas.create_image(
-                25,25, image=self.thermometer[0], anchor=CENTER)
+                25,26, image=self.thermometer[0], anchor=CENTER)
             self.thermoCanvas.place(x=350, rely=1, anchor=S)
             self.thermoTxt = self.thermoCanvas.create_text(
-                25, 65, fill="black", text="0", font=('Helvetica 15 bold'))
+                25, 65, fill="black", text="0", font=('Helvetica 16 bold'))
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -301,7 +299,7 @@ def changeThermoSignal(obj,signal):
     if signal > 40:
         img = obj.thermometer[1]
     obj.thermoCanvas.create_image(
-        25,25, image=img, anchor=CENTER)
+        25,26, image=img, anchor=CENTER)
     obj.thermoCanvas.delete(obj.thermoTxt)
     obj.thermoTxt = obj.thermoCanvas.create_text(
         25, 65, fill="black", text=str(signal), font=('Helvetica 16 bold'))
