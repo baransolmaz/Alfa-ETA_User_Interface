@@ -43,7 +43,7 @@ class Signals:
             self.engineCanvas.place(x=200, rely=1, anchor=S)
     class ElectroSignals(object):
         def __init__(self, obj):
-            self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V2.png')]
+            self.electroSignal = [PhotoImage(file='Images/A.png'), PhotoImage(file='Images/V.png')]
             self.current = self.Current(obj, self.electroSignal[0])
             self.voltage = self.Voltage(obj, self.electroSignal[1])
         class Current(object):
