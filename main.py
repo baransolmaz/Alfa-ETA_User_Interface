@@ -10,7 +10,7 @@ class App:
         self.window = Tk()
         self.screen_width = self.window.winfo_screenwidth()
         self.screen_height = self.window.winfo_screenheight()
-        self.window.geometry("1000x650")  # Screen Size
+        self.window.geometry("705x650")  # Screen Size
         self.window.resizable(0, 0)
         self.window.title("ALFA-ETA") # Pencere ismi
         self.window.iconname("ALFA-ETA")
@@ -20,7 +20,7 @@ class App:
         self.speedometer = Speedometer(self)
         self.mainBattery = Battery(self,"Main",0,525)
         x = 80 ; y = 130
-        self.allBatteries = [[Battery(self,(i*8+j), (x*j)+5, (y*i)+5) for j in range(8)] for i in range(4)]
+        self.allBatteries = [[Battery(self,(i*5+j), (x*j)+5, (y*i)+5) for j in range(5)] for i in range(4)]
         self.signals=Signals(self)
         self.location=Location(self)
 class Signals:
@@ -137,7 +137,7 @@ class Location:
         self.location = [40.9016, 29.2258]  # x,y
         self.locationCanvas = Canvas(obj.window, height=50, width=200,
                                      background="white", highlightthickness=1)
-        self.locationCanvas.place(x=400,y=550)
+        self.locationCanvas.place(x=400,y=300)
         self._X_ = self.locationCanvas.create_text(
             20,15, fill="black", text="X: ", font=('Helvetica 16 bold'))
         self._Y_ = self.locationCanvas.create_text(
@@ -147,10 +147,10 @@ class Location:
         self._Y_Loc = self.locationCanvas.create_text(
             40, 40, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
         self.button = Button(obj.window, text='Show On Map !', bd='1', command=lambda:self.updateLoc(obj))
-        self.button.place(x=400, y=600)
+        self.button.place(x=400, y=350)
         self.imageCanvas = Canvas(obj.window, height=300, width=300,
                                      background="red", highlightthickness=1)
-        self.imageCanvas.place(x=650, y=0)
+        self.imageCanvas.place(x=400, y=0)
     def updateLoc(self,obj):
         mapLoc = folium.Map(location=self.location,
                             tiles="OpenStreetMap", zoom_start=15, zoom_control=False)
@@ -203,16 +203,16 @@ def changeSpeed(obj):
         updateSpeed(obj, i)
 def changeBattery(obj):
     for i in range(0, 80):
-        updateBattery(obj.allBatteries[0][5], i)
+        updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
     for i in range(80, 40, -1):
-        updateBattery(obj.allBatteries[0][5], i)
+        updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
     for i in range(40, 100):
-        updateBattery(obj.allBatteries[0][5], i)
+        updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
     for i in range(100, 0, -1):
-        updateBattery(obj.allBatteries[0][5], i)
+        updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
 def changeLoc(obj):
     obj.location.changeLoc(obj, [40.807712, 29.355991])
