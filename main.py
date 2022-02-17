@@ -31,6 +31,7 @@ class Signals:
         self.engineSignal = self.EngineSignal(obj)
         self.directionSignals=self.DirectionSignals(obj)
         self.thermoSignal=self.ThermoSignal(obj)
+        self.leakageSignal=self.LeakageSignal(obj)
         
     class EngineSignal(object):
         def __init__(self, obj):
@@ -90,12 +91,20 @@ class Signals:
             self.thermometer = [PhotoImage(
                 file='Images/thermometer_ok.png'), PhotoImage(file='Images/thermometer_bad.png')]
             self.thermoCanvas = Canvas(
-                obj.window, height=75, width=49, background="white", highlightthickness=1)
+                obj.window, height=75, width=49, background="blue", highlightthickness=1)
             self.thermoCanvas.create_image(
                 25,26, image=self.thermometer[0], anchor=CENTER)
             self.thermoCanvas.place(x=350, rely=1, anchor=S)
             self.thermoTxt = self.thermoCanvas.create_text(
                 25, 65, fill="black", text="0", font=('Helvetica 16 bold'))
+    class LeakageSignal(object):
+        def __init__(self, obj):
+            self.leakageImage = [PhotoImage(
+                file='Images/red_dot_empty.png'), PhotoImage(file='Images/red_dot_full.png')]
+            self.leakageCanvas = Canvas(
+                obj.window, height=75, width=49, background="black", highlightthickness=1)
+            self.img=self.leakageCanvas.create_image(25, 25, image=self.leakageImage[0], anchor=CENTER)
+            self.leakageCanvas.place(x=400, rely=1, anchor=S)
 class Speedometer:
     def __init__(self, obj):
         #SPEED Canvas
@@ -262,22 +271,23 @@ def colorPicker(charge):
         return "#71B400"
 def changeSig(obj):
     time.sleep(0.5)
-    changeSignals(obj,[3,46,0,1,1,55])
+    changeSignals(obj,[3,46,0,1,1,55,0])
     time.sleep(0.5)
-    changeSignals(obj, [10,15,0, 0, 0,20])
+    changeSignals(obj, [10,15,0, 0, 0,20,1])
     time.sleep(0.5)
-    changeSignals(obj, [36,54,1, 0, 1,100])
+    changeSignals(obj, [36,54,1, 0, 1,100,1])
     time.sleep(0.5)
-    changeSignals(obj, [0,0,0, 1,0,9])
+    changeSignals(obj, [0,0,0, 1,0,9,0])
     time.sleep(0.5)
-    changeSignals(obj, [99,99,1, 1, 1,45])
+    changeSignals(obj, [99,99,1, 1, 1,45,0])
     time.sleep(0.5)
-    changeSignals(obj, [0,0,0,0,0,0])
+    changeSignals(obj, [0,0,0,0,0,0,1])
 def changeSignals(obj,signals):
     changeElectroSignal(obj.signals.electroSignals, signals[0:2])
     changeEngineSignal(obj.signals.engineSignal,signals[2])
     changeDirectionSignal(obj.signals.directionSignals, signals[3:5])
     changeThermoSignal(obj.signals.thermoSignal, signals[5])
+    changeLeakageSignal(obj.signals.leakageSignal, signals[6])
     obj.window.update()
 def changeElectroSignal(obj, signals):
     obj.current.currentCanvas.delete(obj.current.currentTxt)
@@ -303,7 +313,10 @@ def changeThermoSignal(obj,signal):
     obj.thermoCanvas.delete(obj.thermoTxt)
     obj.thermoTxt = obj.thermoCanvas.create_text(
         25, 65, fill="black", text=str(signal), font=('Helvetica 16 bold'))
-    
+def changeLeakageSignal(obj, signal):
+    obj.leakageCanvas.delete(obj.img)
+    obj.img=obj.leakageCanvas.create_image(
+        25, 25, image=obj.leakageImage[signal], anchor=CENTER)
 app = App()
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
