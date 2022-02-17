@@ -8,8 +8,6 @@ import os
 class App:
     def __init__(self):
         self.window = Tk()
-        self.screen_width = self.window.winfo_screenwidth()
-        self.screen_height = self.window.winfo_screenheight()
         self.window.geometry("705x650")  # Screen Size
         self.window.resizable(0, 0)
         self.window.title("ALFA-ETA") # Pencere ismi
@@ -20,19 +18,25 @@ class App:
         self.speedometer = Speedometer(self)
         self.mainBattery = Battery(self,"Main",0,525)
         x = 80 ; y = 130
-        self.allBatteries = [[Battery(self,(i*5+j), (x*j)+5, (y*i)+5) for j in range(5)] for i in range(4)]
+        self.allBatteries = [[Battery(self,(i*5+j), (x*j)+1, (y*i)+1) for j in range(5)] for i in range(4)]
         self.signals=Signals(self)
         self.location=Location(self)
+        self.logo=Logo(self)
+class Logo:
+    def __init__(self, obj):
+        self.logoCanvas = Canvas(
+            obj.window, height=150, width=200, background="blue", highlightthickness=0)
+        self.photo = PhotoImage(file="Images/logo.png")
+        self.logoCanvas.create_image(100, 75, image=self.photo, anchor=CENTER)
+        self.logoCanvas.place(x=450, y=360)
 class Signals:
     def __init__(self, obj):
-        #Signals Canvas
         self.allSignals=[0,0,0,0,0,0]#Current,Voltage,Engine,Left,Right,Tempereture        
         self.electroSignals = self.ElectroSignals(obj)
         self.engineSignal = self.EngineSignal(obj)
         self.directionSignals=self.DirectionSignals(obj)
         self.thermoSignal=self.ThermoSignal(obj)
         self.leakageSignal=self.LeakageSignal(obj)
-        
     class EngineSignal(object):
         def __init__(self, obj):
             self.engineImage = [PhotoImage(
