@@ -135,19 +135,19 @@ class Battery:
 class Location:
     def __init__(self,obj):
         self.location = [40.9016, 29.2258]  # x,y
-        self.locationCanvas = Canvas(obj.window, height=50, width=200,
+        self.locationCanvas = Canvas(obj.window, height=25, width=300,
                                      background="white", highlightthickness=1)
         self.locationCanvas.place(x=400,y=300)
         self._X_ = self.locationCanvas.create_text(
-            20,15, fill="black", text="X: ", font=('Helvetica 16 bold'))
+            20, 15, fill="black", text="X: ", font=('Helvetica 16 bold'))
         self._Y_ = self.locationCanvas.create_text(
-            20,40, fill="black", text="Y: ", font=('Helvetica 16 bold'))
+            160, 15, fill="black", text="Y: ", font=('Helvetica 16 bold'))
         self._X_Loc = self.locationCanvas.create_text(
-            40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'),anchor=W)
+            40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'), anchor=W)
         self._Y_Loc = self.locationCanvas.create_text(
-            40, 40, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
+            180, 15, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
         self.button = Button(obj.window, text='Show On Map !', bd='1', command=lambda:self.updateLoc(obj))
-        self.button.place(x=400, y=350)
+        self.button.place(x=480, y=325)
         self.imageCanvas = Canvas(obj.window, height=300, width=300,
                                      background="red", highlightthickness=1)
         self.imageCanvas.place(x=400, y=0)
@@ -189,7 +189,7 @@ class Location:
         self._X_Loc = self.locationCanvas.create_text(
             40, 15, fill="black", text=str(locs[0]), font=('Helvetica 14 roman'), anchor=W)
         self._Y_Loc = self.locationCanvas.create_text(
-            40, 40, fill="black", text=str(locs[1]), font=('Helvetica 14 roman'), anchor=W)
+            180, 15, fill="black", text=str(locs[1]), font=('Helvetica 14 roman'), anchor=W)
 
         obj.window.update()
 def changeSpeed(obj):
