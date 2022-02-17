@@ -168,7 +168,7 @@ class Location:
 
         self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
         self.imageCanvas.pack()
-        self.imageCanvas.place(x=650, y=0)
+        self.imageCanvas.place(x=400, y=0)
         obj.window.update()
     def savePNG(self):
         opt = webdriver.ChromeOptions()
