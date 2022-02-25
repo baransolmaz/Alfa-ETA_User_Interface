@@ -22,7 +22,7 @@ class App:
         self.signals = Signals(self)
         self.location = Location(self)
         self.logo = Logo(self)
-        #self.steer = Steering(self)
+        self.steer = Steering(self)
 class Logo:
     def __init__(self, obj):
         self.logoCanvas = Canvas(
@@ -202,6 +202,17 @@ class Location:
         self._Y_Loc = self.locationCanvas.create_text(
             180, 15, fill="black", text=str(locs[1]), font=('Helvetica 14 roman'), anchor=W)
         obj.window.update()
+class Steering:
+    def __init__(self, obj):
+        self.steerStrait = Image.open("Images/direksiyon.png")
+        self.steerImage = ImageTk.PhotoImage(self.steerStrait)
+        self.steerCanvas = Canvas(
+            obj.window, height=196, width=200, background="white", highlightthickness=0)
+        self.steer = self.steerCanvas.create_image(
+            100, 102, image=self.steerImage, anchor=CENTER)
+        self.steerCanvas.place(relx=1, rely=1, anchor=SE)
+        self.steerAngle = 0
+
 
 def changeSpeed(obj):
     for i in range(0, 80):
