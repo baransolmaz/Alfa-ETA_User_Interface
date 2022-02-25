@@ -212,8 +212,19 @@ class Steering:
             100, 102, image=self.steerImage, anchor=CENTER)
         self.steerCanvas.place(relx=1, rely=1, anchor=SE)
         self.steerAngle = 0
-
-
+def changeSteer(obj):  # + sol (- sag)
+    for i in range(0, 270):
+        updateSteer(obj, i)
+    time.sleep(1)
+    for i in range(270, -540, -1):
+        updateSteer(obj, i)
+def updateSteer(obj, angle=0):
+    obj.steer.steerCanvas.delete(obj.steer.steer)
+    obj.steer.steerImage = ImageTk.PhotoImage(
+        obj.steer.steerStrait.rotate(angle))
+    obj.steer.steer = obj.steer.steerCanvas.create_image(
+        100, 102, image=obj.steer.steerImage, anchor=CENTER)
+    obj.window.update()
 def changeSpeed(obj):
     for i in range(0, 80):
         updateSpeed(obj, i)
@@ -223,8 +234,6 @@ def changeSpeed(obj):
         updateSpeed(obj, i)
     for i in range(100, 0, -1):
         updateSpeed(obj, i)
-
-
 def changeBattery(obj):
     for i in range(0, 80):
         updateBattery(obj.allBatteries[0][4], i)
@@ -238,12 +247,8 @@ def changeBattery(obj):
     for i in range(100, 0, -1):
         updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
-
-
 def changeLoc(obj):
     obj.location.changeLoc(obj, [40.807712, 29.355991])
-
-
 def updateSpeed(obj, speed=0):
     if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
         obj.speedometer.angle = 90 + 1.8*speed
@@ -256,16 +261,12 @@ def updateSpeed(obj, speed=0):
             int((obj.speedometer.angle-90)/1.8)), font=('Helvetica 20 bold'))
         obj.speedometer.speedArrow = obj.speedometer.speedCanvas.create_line(
             100, 100, 0 + x, y, arrow=LAST, width=5, fill="blue")
-
     obj.window.update()
-
-
 def updateBattery(obj, charge=0):
     if (obj.charge > 0) or (obj.charge < 100):
         obj.batteryCanvas.delete(obj.batteryCharge)
         obj.batteryCanvas.delete(obj.batteryTxt)
         obj.batteryCanvas.delete(obj.batteryImage)
-
         x = 122 - int(charge*1.04)
         color = colorPicker(charge)
         obj.batteryCharge = obj.batteryCanvas.create_rectangle(
@@ -279,8 +280,6 @@ def updateBattery(obj, charge=0):
         obj.charge = charge
         obj.batteryTxt = obj.batteryCanvas.create_text(
             37.5, 110, fill="black", text=str(obj.charge), font=('Helvetica 16 bold'))
-
-
 def colorPicker(charge):
     if charge < 20:
         return "#A10000"
@@ -292,8 +291,6 @@ def colorPicker(charge):
         return "#AAB900"
     else:
         return "#71B400"
-
-
 def changeSig(obj):
     time.sleep(0.5)
     changeSignals(obj, [3, 46, 0, 1, 1, 55, 0])
@@ -307,8 +304,6 @@ def changeSig(obj):
     changeSignals(obj, [99, 99, 1, 1, 1, 45, 0])
     time.sleep(0.5)
     changeSignals(obj, [0, 0, 0, 0, 0, 0, 1])
-
-
 def changeSignals(obj, signals):
     changeElectroSignal(obj.signals.electroSignals, signals[0:2])
     changeEngineSignal(obj.signals.engineSignal, signals[2])
@@ -316,8 +311,6 @@ def changeSignals(obj, signals):
     changeThermoSignal(obj.signals.thermoSignal, signals[5])
     changeLeakageSignal(obj.signals.leakageSignal, signals[6])
     obj.window.update()
-
-
 def changeElectroSignal(obj, signals):
     obj.current.currentCanvas.delete(obj.current.currentTxt)
     obj.voltage.voltageCanvas.delete(obj.voltage.voltageTxt)
@@ -325,8 +318,6 @@ def changeElectroSignal(obj, signals):
         25, 65, fill="black", text=str(signals[0]), font=('Helvetica 16 bold'))
     obj.voltage.voltageTxt = obj.voltage.voltageCanvas.create_text(
         25, 65, fill="black", text=str(signals[1]), font=('Helvetica 16 bold'))
-
-
 def changeEngineSignal(obj, signal):
     obj.engineCanvas.create_image(
         25, 25, image=obj.engineImage[signal], anchor=CENTER)
@@ -352,5 +343,5 @@ app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
 app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
 app.window.bind("<Down>", lambda event, obj=app: changeLoc(obj))
-#app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
+app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
 app.window.mainloop()
