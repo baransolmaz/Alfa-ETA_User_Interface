@@ -402,12 +402,15 @@ def paket1(obj, datas):
     for i in range(0, 2):
         for j in range(0,5):
             updateBattery(obj.allBatteries[i][j], int(arr[(5*i)+j]))
+    for i in range(0, 2):
+        updateBattery(obj.allBatteries[2][i], int(arr[10+i]))
         
 def paket2(obj, datas):
     arr= datas.split("\\")[0].split(",")
-    for i in range(0,2):
-        for j in range(0, 5):
-            updateBattery(obj.allBatteries[i+2][j], int(arr[(5*i)+j]))
+    for i in range(3):
+        updateBattery(obj.allBatteries[2][2+i], int(arr[i]))
+    for i in range(3):
+        updateBattery(obj.allBatteries[3][i], int(arr[i+3]))
     
 def paket3(obj, datas):
     arr= datas.split("\\")[0].split(",")
