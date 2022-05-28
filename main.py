@@ -6,8 +6,11 @@ from selenium import webdriver
 from PIL import Image, ImageTk
 import os
 import serial
-import multiprocessing as mp
+import threading as thr
 _PORT_ = '/dev/ttyUSB0'
+#manager = mp.Manager()
+#_END_FLAG_ = manager.Value("i", 0)
+#_END_FLAG_=mp.Value("i",0)
 _END_FLAG_=0
 class App:
     def __init__(self):
@@ -22,13 +25,18 @@ class App:
         self.speedometer = Speedometer(self)
         self.mainBattery = Battery(self, "Main", 0, 525)
         x = 80;y = 130
-        self.allBatteries = [[Battery(self, (i*5+j), (x*j)+1, (y*i)+1) for j in range(5)] for i in range(4)]
+        self.allBatteries=[[0 for j in range(5)] for i in range(4)]
+        for i in range(4):
+            for j in range(5):
+                if ((i*5)+j)<18:
+                    self.allBatteries[i][j] = Battery(self, (i*5+j), (x*j)+1, (y*i)+1)
+        #self.allBatteries = [[Battery(self, (i*5+j), (x*j)+1, (y*i)+1) for j in range(5)] for i in range(4)]
         self.signals = Signals(self)
         self.location = Location(self)
         self.logo = Logo(self)
         self.steer = Steering(self)
         self.serial= self.connectUSB();
-        self.readData = mp.Process(target=self.readAndParseDATA)
+        self.readData = thr.Thread(target=self.readAndParseDATA)
         self.readData.start()
         
     def connectUSB(self):
@@ -48,16 +56,27 @@ class App:
         )
         return ser
     def readAndParseDATA(self):
-        while(_END_FLAG_==0):
+        while(getFlag()==0):
             x = self.serial.readline()
-            print(x)
+            #print(x)
+            datas=str(x).split(":")
+            #print(datas[0][2:4])
+            paket = datas[0][2:4]
+            if paket == '1':  # Battery 0 - 10
+                paket1(self,datas[1])
+            if paket == '2':  # Battery 10 - 20
+                paket2(self, datas[1])
+            if paket == '3':
+                paket3(self, datas[1])
+            if paket == '4':
+                paket1(self, datas[1])
 class Logo:
     def __init__(self, obj):
         self.logoCanvas = Canvas(
             obj.window, height=100, width=150, background="blue", highlightthickness=0)
         self.photo = PhotoImage(file="Images/logo.png")
         self.logoCanvas.create_image(75, 50, image=self.photo, anchor=CENTER)
-        self.logoCanvas.place(x=475, y=355)
+        self.logoCanvas.place(x=375, y=400)
 class Signals:
     def __init__(self, obj):
         # Current,Voltage,Engine,Left,Right,Tempereture
@@ -367,15 +386,42 @@ def changeLeakageSignal(obj, signal):
     obj.leakageCanvas.delete(obj.img)
     obj.img = obj.leakageCanvas.create_image(25, 25, image=obj.leakageImage[signal], anchor=CENTER)
 def exit_func(obj):
-    _END_FLAG_=1
+    setFlag(1)
     obj.readData.join()
     obj.window.destroy()
-app = App()
+    
+def getFlag():
+    global _END_FLAG_
+    return _END_FLAG_    
+def setFlag(i):
+    global _END_FLAG_
+    #_END_FLAG_= mp.Value("i", 1)
+    _END_FLAG_=1
+def paket1(obj, datas):
+    arr= datas.split("\\")[0].split(",")
+    for i in range(0, 2):
+        for j in range(0,5):
+            updateBattery(obj.allBatteries[i][j], int(arr[(5*i)+j]))
+        
+def paket2(obj, datas):
+    arr= datas.split("\\")[0].split(",")
+    for i in range(0,2):
+        for j in range(0, 5):
+            updateBattery(obj.allBatteries[i+2][j], int(arr[(5*i)+j]))
+    
+def paket3(obj, datas):
+    arr= datas.split("\\")[0].split(",")
 
-app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
-app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
-app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
-app.window.bind("<Down>", lambda event, obj=app: changeLoc(obj))
-app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
-app.window.protocol('WM_DELETE_WINDOW', lambda obj= app: exit_func(obj))
-app.window.mainloop()
+
+def paket4(obj, datas):
+    arr = datas.split("\\")[0].split(",")
+
+if __name__ == '__main__':
+    app = App()
+    app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
+    app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
+    app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
+    app.window.bind("<Down>", lambda event, obj=app: changeLoc(obj))
+    app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
+    app.window.protocol('WM_DELETE_WINDOW', lambda obj= app: exit_func(obj))
+    app.window.mainloop()
