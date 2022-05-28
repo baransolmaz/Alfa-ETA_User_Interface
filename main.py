@@ -33,6 +33,7 @@ class App:
         #self.allBatteries = [[Battery(self, (i*5+j), (x*j)+1, (y*i)+1) for j in range(5)] for i in range(4)]
         self.signals = Signals(self)
         self.location = Location(self)
+        #self.mapThread = thr.Thread(target=self.location.)
         self.logo = Logo(self)
         self.steer = Steering(self)
         self.serial= self.connectUSB();
@@ -212,12 +213,6 @@ class Location:
         folium.Marker(location=self.location).add_to(mapLoc)
         directory = os.path.dirname(os.path.abspath(__file__))
         mapLoc.save(directory+"/Map/map.html")
-        ''' p1 = multi.Process(target=self.savePNG)
-        p1.start()
-        p1.join()
-        t1 = th.Thread(target=self.savePNG)
-        t1.start()
-        t1.join()  '''
         self.savePNG()
         self.imag = PhotoImage(file=(directory+'/Map/ss.png'))
         self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
@@ -235,7 +230,7 @@ class Location:
         time.sleep(1)
         # You may need to add time.sleep(seconds) here
         driver.save_screenshot(directory+'/Map/ss.png')
-        driver.close()
+        #driver.close()
     def changeLoc(self, obj, locs):
         self.location = locs
         self.locationCanvas.delete(self._X_Loc)
@@ -418,7 +413,6 @@ def paket2(obj, datas):
     sicaklik = float(arr[12])
     changeSignals(obj, [amp,volt,mot, sol, sag, sicaklik,kacak])
     updateSpeed(obj, int(arr[13]))
-    
     
 def paket3(obj, datas):
     arr= datas.split("\\")[0].split(",")
