@@ -5,6 +5,10 @@ import folium
 from selenium import webdriver
 from PIL import Image, ImageTk
 import os
+import serial
+import multiprocessing as mp
+_PORT_ = '/dev/ttyUSB0'
+_END_FLAG_=0
 class App:
     def __init__(self):
         self.window = Tk()
@@ -23,6 +27,30 @@ class App:
         self.location = Location(self)
         self.logo = Logo(self)
         self.steer = Steering(self)
+        self.serial= self.connectUSB();
+        self.readData = mp.Process(target=self.readAndParseDATA)
+        self.readData.start()
+        
+    def connectUSB(self):
+        ser = serial.Serial(
+            # Serial Port to read the data from
+            port=_PORT_,
+            #Rate at which the information is shared to the communication channel
+            baudrate=9600,
+            #Applying Parity Checking (none in this case)
+            parity=serial.PARITY_NONE,
+            # Pattern of Bits to be read
+            stopbits=serial.STOPBITS_ONE,
+            # Total number of bits to be read
+            bytesize=serial.EIGHTBITS,
+            # Number of serial commands to accept before timing out
+            timeout=1
+        )
+        return ser
+    def readAndParseDATA(self):
+        while(_END_FLAG_==0):
+            x = self.serial.readline()
+            print(x)
 class Logo:
     def __init__(self, obj):
         self.logoCanvas = Canvas(
@@ -338,10 +366,16 @@ def changeThermoSignal(obj, signal):
 def changeLeakageSignal(obj, signal):
     obj.leakageCanvas.delete(obj.img)
     obj.img = obj.leakageCanvas.create_image(25, 25, image=obj.leakageImage[signal], anchor=CENTER)
+def exit_func(obj):
+    _END_FLAG_=1
+    obj.readData.join()
+    obj.window.destroy()
 app = App()
+
 app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
 app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
 app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
 app.window.bind("<Down>", lambda event, obj=app: changeLoc(obj))
 app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
+app.window.protocol('WM_DELETE_WINDOW', lambda obj= app: exit_func(obj))
 app.window.mainloop()
