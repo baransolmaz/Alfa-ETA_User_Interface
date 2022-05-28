@@ -58,18 +58,14 @@ class App:
     def readAndParseDATA(self):
         while(getFlag()==0):
             x = self.serial.readline()
-            #print(x)
             datas=str(x).split(":")
-            #print(datas[0][2:4])
             paket = datas[0][2:4]
-            if paket == '1':  # Battery 0 - 10
+            if paket == '1':  # Battery 0 - 12
                 paket1(self,datas[1])
-            if paket == '2':  # Battery 10 - 20
+            if paket == '2':  # Battery 12 - 18  + Left -Right Signal +Motor +Leakage Signal+Amper+Volt+pil Temp. 
                 paket2(self, datas[1])
             if paket == '3':
                 paket3(self, datas[1])
-            if paket == '4':
-                paket1(self, datas[1])
 class Logo:
     def __init__(self, obj):
         self.logoCanvas = Canvas(
@@ -295,7 +291,9 @@ def changeBattery(obj):
         updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
 def changeLoc(obj):
-    obj.location.changeLoc(obj, [40.807712, 29.355991])
+    updateLoc(obj, [40.807712, 29.355991])
+def updateLoc(obj,loc):
+    obj.location.changeLoc(obj, loc)
 def updateSpeed(obj, speed=0):
     if (obj.speedometer.angle < 270) or (obj.speedometer.angle > 90):
         obj.speedometer.angle = 90 + 1.8*speed
@@ -411,13 +409,21 @@ def paket2(obj, datas):
         updateBattery(obj.allBatteries[2][2+i], int(arr[i]))
     for i in range(3):
         updateBattery(obj.allBatteries[3][i], int(arr[i+3]))
+    sag=int(arr[6])
+    sol = int(arr[7])
+    kacak = int(arr[8])
+    mot = int(arr[9])
+    amp = int(arr[10])
+    volt = int(arr[11])
+    sicaklik = float(arr[12])
+    changeSignals(obj, [amp,volt,mot, sol, sag, sicaklik,kacak])
+    updateSpeed(obj, int(arr[13]))
+    
     
 def paket3(obj, datas):
     arr= datas.split("\\")[0].split(",")
-
-
-def paket4(obj, datas):
-    arr = datas.split("\\")[0].split(",")
+    updateSteer(obj, float(arr[0]))
+    updateLoc(obj, [float(arr[1]), float(arr[2])])
 
 if __name__ == '__main__':
     app = App()
