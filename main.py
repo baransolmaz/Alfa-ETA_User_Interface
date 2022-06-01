@@ -8,9 +8,8 @@ import os
 import serial
 import threading as thr
 _PORT_ = '/dev/ttyUSB0'
-#manager = mp.Manager()
-#_END_FLAG_ = manager.Value("i", 0)
-#_END_FLAG_=mp.Value("i",0)
+first12=0
+last6=0
 _END_FLAG_=0
 class App:
     def __init__(self):
@@ -59,6 +58,7 @@ class App:
     def readAndParseDATA(self):
         while(getFlag()==0):
             x = self.serial.readline()
+            print(x)
             datas=str(x).split(":")
             paket = datas[0][2:4]
             if paket == '1':  # Battery 0 - 12
@@ -227,7 +227,7 @@ class Location:
         driver.set_window_size(320, 320)  # choose a resolution
         directory = os.path.dirname(os.path.abspath(__file__))
         driver.get("file://"+directory+"/Map/map.html")
-        time.sleep(1)
+        time.sleep(2)
         # You may need to add time.sleep(seconds) here
         driver.save_screenshot(directory+'/Map/ss.png')
         #driver.close()
@@ -391,19 +391,31 @@ def setFlag(i):
     #_END_FLAG_= mp.Value("i", 1)
     _END_FLAG_=1
 def paket1(obj, datas):
+    sum=0
     arr= datas.split("\\")[0].split(",")
     for i in range(0, 2):
         for j in range(0,5):
             updateBattery(obj.allBatteries[i][j], int(arr[(5*i)+j]))
+            sum+=int(arr[(5*i)+j])
     for i in range(0, 2):
         updateBattery(obj.allBatteries[2][i], int(arr[10+i]))
-        
+        sum += int(arr[10+i])
+    global first12,last6
+    first12=sum
+    updateBattery(obj.mainBattery,(first12+last6)/18)
+    
 def paket2(obj, datas):
+    sum=0
     arr= datas.split("\\")[0].split(",")
     for i in range(3):
         updateBattery(obj.allBatteries[2][2+i], int(arr[i]))
+        sum += int(arr[i])
     for i in range(3):
         updateBattery(obj.allBatteries[3][i], int(arr[i+3]))
+        sum+=int(arr[i+3])
+    global last6,first12
+    last6=sum
+    updateBattery(obj.mainBattery, (first12+last6)/18)
     sag=int(arr[6])
     sol = int(arr[7])
     kacak = int(arr[8])
