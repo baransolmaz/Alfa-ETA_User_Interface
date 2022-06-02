@@ -43,9 +43,9 @@ class App:
             target=self.location.updateLoc, args=[self,self.location])
         self.logo = Logo(self)
         self.steer = Steering(self)
-        #self.serial= self.connectUSB();
-        #self.readData = thr.Thread(target=self.readAndParseDATA)
-        #self.readData.start()
+        self.serial= self.connectUSB();
+        self.readData = thr.Thread(target=self.readAndParseDATA)
+        self.readData.start()
         self.mapThread.start()
         
     def connectUSB(self):
@@ -398,7 +398,7 @@ def changeLeakageSignal(obj, signal):
     obj.img = obj.leakageCanvas.create_image(25, 25, image=obj.leakageImage[signal], anchor=CENTER)
 def exit_func(obj):
     setFlag(1)
-    #obj.readData.join()
+    obj.readData.join()
     obj.mapThread.join()
     global driver
     driver.close()
