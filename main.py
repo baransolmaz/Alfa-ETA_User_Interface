@@ -87,7 +87,7 @@ class Logo:
             obj.window, height=100, width=150, background="white", highlightthickness=0)
         self.numberPhoto = PhotoImage(file="Images/44.png")
         self.numberCanvas.create_image(75, 50, image=self.numberPhoto, anchor=CENTER)
-        self.numberCanvas.place(x=250, y=410)
+        self.numberCanvas.place(x=275, y=410)
 class Signals:
     def __init__(self, obj):
         # Current,Voltage,Engine,Left,Right,Tempereture
@@ -206,7 +206,7 @@ class Battery:
         self.charge = 0
 class Location:
     def __init__(self, obj):
-        self.location = [40.9016, 29.2258]  # x,y
+        self.location = [40.806649, 29.359085]  # x,y
         self.locationCanvas = Canvas(obj.window, height=25, width=300,
                                      background="white", highlightthickness=1)
         self.locationCanvas.place(x=400, y=300)
@@ -226,7 +226,7 @@ class Location:
     def updateLoc(self,obj,loc):
         while(getFlag()==0):
             mapLoc = folium.Map(location=loc.location,
-                            tiles="OpenStreetMap", zoom_start=15, zoom_control=False)
+                            tiles="OpenStreetMap", zoom_start=17, zoom_control=False)
             folium.Marker(location=loc.location).add_to(mapLoc)
             global directory
             mapLoc.save(directory+"/Map/map.html")
