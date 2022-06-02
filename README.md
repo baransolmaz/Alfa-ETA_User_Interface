@@ -1,5 +1,12 @@
 # Alfa-ETA_User_Interface
 ![alt text](https://github.com/baransolmaz/Alfa-ETA_User_Interface/blob/2Haziran/Current/19.png)
+
+## Installation
+    Download zip file
+```bash 
+    make requirements
+    make run
+``` 
 ## Requirements
 
 Requirements/Libraries for Interface:
