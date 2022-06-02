@@ -11,6 +11,14 @@ _PORT_ = '/dev/ttyUSB0'
 first12=0
 last6=0
 _END_FLAG_=0
+
+opt = webdriver.ChromeOptions()
+opt.add_argument("--headless")
+opt.add_argument("--offline")
+driver = webdriver.Chrome(options=opt)
+driver.set_window_size(320, 320)  # choose a resolution
+directory = os.path.dirname(os.path.abspath(__file__))
+driver.get("file://"+directory+"/Map/map.html")
 class App:
     def __init__(self):
         self.window = Tk()
@@ -29,15 +37,16 @@ class App:
             for j in range(5):
                 if ((i*5)+j)<18:
                     self.allBatteries[i][j] = Battery(self, (i*5+j), (x*j)+1, (y*i)+1)
-        #self.allBatteries = [[Battery(self, (i*5+j), (x*j)+1, (y*i)+1) for j in range(5)] for i in range(4)]
         self.signals = Signals(self)
         self.location = Location(self)
-        #self.mapThread = thr.Thread(target=self.location.)
+        self.mapThread = thr.Thread(
+            target=self.location.updateLoc, args=[self,self.location])
         self.logo = Logo(self)
         self.steer = Steering(self)
-        self.serial= self.connectUSB();
-        self.readData = thr.Thread(target=self.readAndParseDATA)
-        self.readData.start()
+        #self.serial= self.connectUSB();
+        #self.readData = thr.Thread(target=self.readAndParseDATA)
+        #self.readData.start()
+        self.mapThread.start()
         
     def connectUSB(self):
         ser = serial.Serial(
@@ -65,15 +74,20 @@ class App:
                 paket1(self,datas[1])
             if paket == '2':  # Battery 12 - 18  + Left -Right Signal +Motor +Leakage Signal+Amper+Volt+pil Temp. 
                 paket2(self, datas[1])
-            if paket == '3':
+            if paket == '3':# direksiyon + konum
                 paket3(self, datas[1])
 class Logo:
     def __init__(self, obj):
         self.logoCanvas = Canvas(
-            obj.window, height=100, width=150, background="blue", highlightthickness=0)
+            obj.window, height=100, width=140, background="blue", highlightthickness=0)
         self.photo = PhotoImage(file="Images/logo.png")
         self.logoCanvas.create_image(75, 50, image=self.photo, anchor=CENTER)
-        self.logoCanvas.place(x=375, y=400)
+        self.logoCanvas.place(x=450, y=340)
+        self.numberCanvas = Canvas(
+            obj.window, height=100, width=150, background="white", highlightthickness=0)
+        self.numberPhoto = PhotoImage(file="Images/44.png")
+        self.numberCanvas.create_image(75, 50, image=self.numberPhoto, anchor=CENTER)
+        self.numberCanvas.place(x=250, y=410)
 class Signals:
     def __init__(self, obj):
         # Current,Voltage,Engine,Left,Right,Tempereture
@@ -144,7 +158,7 @@ class Signals:
             self.thermoCanvas.create_image(25, 26, image=self.thermometer[0], anchor=CENTER)
             self.thermoCanvas.place(x=200, rely=1, anchor=S)
             self.thermoTxt = self.thermoCanvas.create_text(
-                25, 65, fill="black", text="0", font=('Helvetica 16 bold'))
+                25, 65, fill="black", text="0", font=('Helvetica 15 bold'))
     class LeakageSignal(object):
         def __init__(self, obj):
             self.leakageImage = [PhotoImage(
@@ -184,6 +198,7 @@ class Battery:
         self.batteryImage = self.batteryCanvas.create_image(
             0, 2, image=self.batteryImages[0], anchor=NW)
         self.batteryCanvas.place(x=_x_, y=_y_)
+        self.batteryNo=name
         self.batteryName = self.batteryCanvas.create_text(
             37.5, 35, fill="black", text=name, font=('Helvetica 14 roman'))
         self.batteryTxt = self.batteryCanvas.create_text(
@@ -203,34 +218,34 @@ class Location:
             40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'), anchor=W)
         self._Y_Loc = self.locationCanvas.create_text(
             180, 15, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
-        self.button = Button(obj.window, text='Show On Map !',bd='1', command=lambda: self.updateLoc(obj))
-        self.button.place(x=480, y=325)
+        ''' self.button = Button(obj.window, text='Show On Map !',bd='1', command=lambda: self.updateLoc(obj))
+        self.button.place(x=480, y=325) '''
         self.imageCanvas = Canvas(obj.window, height=300, width=300,background="red", highlightthickness=1)
         self.imageCanvas.place(x=400, y=0)
-    def updateLoc(self, obj):
-        mapLoc = folium.Map(location=self.location,
+        
+    def updateLoc(self,obj,loc):
+        while(getFlag()==0):
+            mapLoc = folium.Map(location=loc.location,
                             tiles="OpenStreetMap", zoom_start=15, zoom_control=False)
-        folium.Marker(location=self.location).add_to(mapLoc)
-        directory = os.path.dirname(os.path.abspath(__file__))
-        mapLoc.save(directory+"/Map/map.html")
-        self.savePNG()
-        self.imag = PhotoImage(file=(directory+'/Map/ss.png'))
-        self.image = self.imageCanvas.create_image(0, 0, image=self.imag, anchor=NW)
-        self.imageCanvas.pack()
-        self.imageCanvas.place(x=400, y=0)
-        obj.window.update()
+            folium.Marker(location=loc.location).add_to(mapLoc)
+            global directory
+            mapLoc.save(directory+"/Map/map.html")
+            self.savePNG()
+            self.imag = PhotoImage(file=(directory+'/Map/ss.png'))
+            self.image = self.imageCanvas.create_image(
+                0, 0, image=self.imag, anchor=NW)
+            self.imageCanvas.pack()
+            self.imageCanvas.place(x=400, y=0)
+            obj.window.update()
+
     def savePNG(self):
-        opt = webdriver.ChromeOptions()
-        opt.add_argument("--headless")
-        opt.add_argument("--offline")
-        driver = webdriver.Chrome(options=opt)
-        driver.set_window_size(320, 320)  # choose a resolution
-        directory = os.path.dirname(os.path.abspath(__file__))
+        global driver,directory
         driver.get("file://"+directory+"/Map/map.html")
-        time.sleep(2)
+        time.sleep(1)
         # You may need to add time.sleep(seconds) here
         driver.save_screenshot(directory+'/Map/ss.png')
         #driver.close()
+
     def changeLoc(self, obj, locs):
         self.location = locs
         self.locationCanvas.delete(self._X_Loc)
@@ -307,6 +322,7 @@ def updateBattery(obj, charge=0):
         obj.batteryCanvas.delete(obj.batteryCharge)
         obj.batteryCanvas.delete(obj.batteryTxt)
         obj.batteryCanvas.delete(obj.batteryImage)
+        obj.batteryCanvas.delete(obj.batteryName)
         x = 122 - int(charge*1.04)
         color = colorPicker(charge)
         obj.batteryCharge = obj.batteryCanvas.create_rectangle(
@@ -320,6 +336,8 @@ def updateBattery(obj, charge=0):
         obj.charge = charge
         obj.batteryTxt = obj.batteryCanvas.create_text(
             37.5, 110, fill="black", text=str(obj.charge), font=('Helvetica 16 bold'))
+        obj.batteryName = obj.batteryCanvas.create_text(
+            37.5, 35, fill="black", text=obj.batteryNo , font=('Helvetica 14 roman'))
 def colorPicker(charge):
     if charge < 20:
         return "#A10000"
@@ -374,22 +392,24 @@ def changeThermoSignal(obj, signal):
         25, 26, image=img, anchor=CENTER)
     obj.thermoCanvas.delete(obj.thermoTxt)
     obj.thermoTxt = obj.thermoCanvas.create_text(
-        25, 65, fill="black", text=str(signal), font=('Helvetica 16 bold'))
+        25, 65, fill="black", text=str(signal), font=('Helvetica 15 bold'))
 def changeLeakageSignal(obj, signal):
     obj.leakageCanvas.delete(obj.img)
     obj.img = obj.leakageCanvas.create_image(25, 25, image=obj.leakageImage[signal], anchor=CENTER)
 def exit_func(obj):
     setFlag(1)
-    obj.readData.join()
+    #obj.readData.join()
+    obj.mapThread.join()
+    global driver
+    driver.close()
     obj.window.destroy()
-    
 def getFlag():
     global _END_FLAG_
     return _END_FLAG_    
 def setFlag(i):
     global _END_FLAG_
-    #_END_FLAG_= mp.Value("i", 1)
     _END_FLAG_=1
+    
 def paket1(obj, datas):
     sum=0
     arr= datas.split("\\")[0].split(",")
