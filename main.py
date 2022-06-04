@@ -43,7 +43,6 @@ class App:
             target=self.location.updateLoc, args=[self,self.location])
         self.logo = Logo(self)
         self.steer = Steering(self)
-        self.serialCon= self.connectUSB();
         self.readData = thr.Thread(target=self.readAndParseDATA)
         self.readData.start()
         self.mapThread.start()
@@ -65,17 +64,25 @@ class App:
         )
         return ser
     def readAndParseDATA(self):
-        while(getFlag()==0):
-            x = self.serialCon.readline()
-            #print(x)
-            datas=str(x).split(":")
-            paket = datas[0][2:4]
-            if paket == '1':  # Battery 0 - 12
-                paket1(self,datas[1])
-            if paket == '2':  # Battery 12 - 18  + Left -Right Signal +Motor +Leakage Signal+Amper+Volt+pil Temp. 
-                paket2(self, datas[1])
-            if paket == '3':# direksiyon + konum
-                paket3(self, datas[1])
+        while(getFlag() == 0):
+            try:
+                self.serialCon = self.connectUSB()
+            except serial.SerialException:
+                time.sleep(3)
+                pass
+            else:
+                while(getFlag()==0):
+                    x = self.serialCon.readline()
+                    #print(x)
+                    datas=str(x).split(":")
+                    paket = datas[0][2:4]
+                    if paket == '1':  # Battery 0 - 12
+                        paket1(self,datas[1])
+                    if paket == '2':  # Battery 12 - 18  + Left -Right Signal +Motor +Leakage Signal+Amper+Volt+pil Temp. 
+                        paket2(self, datas[1])
+                    if paket == '3':# direksiyon + konum
+                        paket3(self, datas[1])
+                self.serialCon.close()
 class Logo:
     def __init__(self, obj):
         self.logoCanvas = Canvas(
@@ -218,34 +225,30 @@ class Location:
             40, 15, fill="black", text=str(self.location[0]), font=('Helvetica 14 roman'), anchor=W)
         self._Y_Loc = self.locationCanvas.create_text(
             180, 15, fill="black", text=str(self.location[1]), font=('Helvetica 14 roman'), anchor=W)
-        ''' self.button = Button(obj.window, text='Show On Map !',bd='1', command=lambda: self.updateLoc(obj))
-        self.button.place(x=480, y=325) '''
         self.imageCanvas = Canvas(obj.window, height=300, width=300,background="red", highlightthickness=1)
         self.imageCanvas.place(x=400, y=0)
         
     def updateLoc(self,obj,loc):
+        global directory,driver
         while(getFlag()==0):
             mapLoc = folium.Map(location=loc.location,
                             tiles="OpenStreetMap", zoom_start=17, zoom_control=False)
             folium.Marker(location=loc.location).add_to(mapLoc)
-            global directory
             mapLoc.save(directory+"/Map/map.html")
-            self.savePNG()
+            driver.get("file://"+directory+"/Map/map.html")
+            time.sleep(1)
+            # You may need to add time.sleep(seconds) here
+            driver.save_screenshot(directory+'/Map/ss.png')
+            if getFlag()==1:
+                break;
             self.imag = PhotoImage(file=(directory+'/Map/ss.png'))
             self.image = self.imageCanvas.create_image(
                 0, 0, image=self.imag, anchor=NW)
             self.imageCanvas.pack()
             self.imageCanvas.place(x=400, y=0)
             obj.window.update()
-
-    def savePNG(self):
-        global driver,directory
-        driver.get("file://"+directory+"/Map/map.html")
-        time.sleep(1)
-        # You may need to add time.sleep(seconds) here
-        driver.save_screenshot(directory+'/Map/ss.png')
-        #driver.close()
-
+        driver.close()
+        
     def changeLoc(self, obj, locs):
         self.location = locs
         self.locationCanvas.delete(self._X_Loc)
@@ -400,8 +403,6 @@ def exit_func(obj):
     setFlag(1)
     obj.readData.join()
     obj.mapThread.join()
-    global driver
-    driver.close()
     obj.window.destroy()
 def getFlag():
     global _END_FLAG_
@@ -453,10 +454,10 @@ def paket3(obj, datas):
 
 if __name__ == '__main__':
     app = App()
-    app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
-    app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
-    app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
-    app.window.bind("<Down>", lambda event, obj=app: changeLoc(obj))
-    app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
+    # app.window.bind("<Up>", lambda event, obj=app: changeSpeed(obj))
+    # app.window.bind("<Left>", lambda event, obj=app: changeBattery(obj))
+    # app.window.bind("<BackSpace>", lambda event, obj=app: changeSig(obj))
+    # app.window.bind("<Down>", lambda event, obj=app: changeLoc(obj))
+    # app.window.bind("<Right>", lambda event, obj=app: changeSteer(obj))
     app.window.protocol('WM_DELETE_WINDOW', lambda obj= app: exit_func(obj))
     app.window.mainloop()
