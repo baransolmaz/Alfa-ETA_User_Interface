@@ -3,4 +3,4 @@ folium
 selenium
 Pillow
 thread6
-serial
+pyserial==3.3

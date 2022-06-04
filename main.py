@@ -43,7 +43,7 @@ class App:
             target=self.location.updateLoc, args=[self,self.location])
         self.logo = Logo(self)
         self.steer = Steering(self)
-        self.serial= self.connectUSB();
+        self.serialCon= self.connectUSB();
         self.readData = thr.Thread(target=self.readAndParseDATA)
         self.readData.start()
         self.mapThread.start()
@@ -66,8 +66,8 @@ class App:
         return ser
     def readAndParseDATA(self):
         while(getFlag()==0):
-            x = self.serial.readline()
-            print(x)
+            x = self.serialCon.readline()
+            #print(x)
             datas=str(x).split(":")
             paket = datas[0][2:4]
             if paket == '1':  # Battery 0 - 12
