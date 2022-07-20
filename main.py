@@ -268,12 +268,12 @@ class Steering:
             100, 102, image=self.steerImage, anchor=CENTER)
         self.steerCanvas.place(relx=1, rely=1, anchor=SE)
         self.steerAngle = 0
-def changeSteer(obj):  # + sol (- sag)
+""" def changeSteer(obj):  # + sol (- sag)
     for i in range(0, 270):
         updateSteer(obj, i)
     time.sleep(1)
     for i in range(270, -540, -1):
-        updateSteer(obj, i)
+        updateSteer(obj, i) """
 def updateSteer(obj, angle=0):
     obj.steer.steerCanvas.delete(obj.steer.steer)
     obj.steer.steerImage = ImageTk.PhotoImage(
@@ -281,7 +281,7 @@ def updateSteer(obj, angle=0):
     obj.steer.steer = obj.steer.steerCanvas.create_image(
         100, 102, image=obj.steer.steerImage, anchor=CENTER)
     obj.window.update()
-def changeSpeed(obj):
+""" def changeSpeed(obj):
     for i in range(0, 80):
         updateSpeed(obj, i)
     for i in range(80, 40, -1):
@@ -289,8 +289,8 @@ def changeSpeed(obj):
     for i in range(40, 100):
         updateSpeed(obj, i)
     for i in range(100, 0, -1):
-        updateSpeed(obj, i)
-def changeBattery(obj):
+        updateSpeed(obj, i) """
+""" def changeBattery(obj):
     for i in range(0, 80):
         updateBattery(obj.allBatteries[0][4], i)
         obj.window.update()
@@ -302,9 +302,9 @@ def changeBattery(obj):
         obj.window.update()
     for i in range(100, 0, -1):
         updateBattery(obj.allBatteries[0][4], i)
-        obj.window.update()
-def changeLoc(obj):
-    updateLoc(obj, [40.807712, 29.355991])
+        obj.window.update() """
+""" def changeLoc(obj):
+    updateLoc(obj, [40.807712, 29.355991]) """
 def updateLoc(obj,loc):
     obj.location.changeLoc(obj, loc)
 def updateSpeed(obj, speed=0):
@@ -352,7 +352,7 @@ def colorPicker(charge):
         return "#AAB900"
     else:
         return "#71B400"
-def changeSig(obj):
+""" def changeSig(obj):
     time.sleep(0.5)
     changeSignals(obj, [3, 46, 0, 1, 1, 55, 0])
     time.sleep(0.5)
@@ -364,7 +364,7 @@ def changeSig(obj):
     time.sleep(0.5)
     changeSignals(obj, [99, 99, 1, 1, 1, 45, 0])
     time.sleep(0.5)
-    changeSignals(obj, [0, 0, 0, 0, 0, 0, 1])
+    changeSignals(obj, [0, 0, 0, 0, 0, 0, 1]) """
 def changeSignals(obj, signals):
     changeElectroSignal(obj.signals.electroSignals, signals[0:2])
     changeEngineSignal(obj.signals.engineSignal, signals[2])
